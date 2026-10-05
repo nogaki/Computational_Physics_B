@@ -1,0 +1,11 @@
+.beamer-build/
+template.aux
+template.fdb_latexmk
+template.fls
+template.log
+template.nav
+template.out
+template.snm
+template.synctex.gz
+template.toc
+template.vrb

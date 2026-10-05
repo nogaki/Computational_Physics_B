@@ -1,0 +1,33 @@
+% !TEX program = lualatex
+% Compile in this directory: latexmk -lualatex template.tex
+\documentclass[12pt,aspectratio=43]{beamer}
+\input{blue-lecture-theme.tex}
+
+% 講義ごとにここを変更します。日付を表示しない場合は \date{}。
+\title{講義タイトル}
+\subtitle{第○回}
+\author{著者名}
+\date{YYYY/MM/DD}
+
+\begin{document}
+
+% 青い表紙
+\begin{frame}[t,noframenumbering]
+  \titlepage
+\end{frame}
+
+% 題名の下に青い線が付く通常スライド
+\begin{frame}{スライドの題名}
+  ここに説明文を書きます。
+
+  \begin{itemize}
+    \item 最初のポイント
+      \begin{itemize}
+        \item 補足説明
+        \item 具体例
+      \end{itemize}
+    \item 次のポイント
+  \end{itemize}
+\end{frame}
+
+\end{document}
