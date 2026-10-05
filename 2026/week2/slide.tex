@@ -1,0 +1,487 @@
+% !TEX program = lualatex
+% Compile from 2026/week2: latexmk -lualatex slide.tex
+% Source: ../../2025/week2/week2.pdf (17 slides, 4:3).
+\documentclass[12pt,aspectratio=43]{beamer}
+\input{../../templates/beamer/blue-lecture-theme.tex}
+\usepackage{array}
+\usepackage{listings}
+\usepackage{upquote}
+\newfontfamily\codefont{Consolas}
+\definecolor{codevalue}{HTML}{7A3E9D}
+\definecolor{codebuiltin}{HTML}{006DB0}
+\definecolor{codestring}{HTML}{267348}
+\newcommand{\code}[1]{{\codefont #1}}
+
+% Python is literal code, separate from mathematical notation.
+% Keep indentation, ASCII operators and straight quotation marks.
+\lstdefinestyle{python}{
+  language=Python,
+  basicstyle=\codefont\fontsize{15}{17}\selectfont,
+  keywordstyle=\color{codebuiltin},
+  keywordstyle=[2]\color{codebuiltin},
+  morekeywords=[2]{print,range},
+  stringstyle=\color{codestring},
+  commentstyle=\color{black!55},
+  showstringspaces=false,
+  columns=fullflexible,
+  keepspaces=true,
+  upquote=true,
+  tabsize=4,
+  breaklines=false,
+  mathescape=false,
+  backgroundcolor=\color{black!4},
+  frame=single,framerule=0pt,framesep=1.7mm,
+  xleftmargin=1.7mm,xrightmargin=1.7mm,
+  aboveskip=2mm,belowskip=1mm,
+  literate=*{0}{{{\color{codevalue}0}}}1
+    {1}{{{\color{codevalue}1}}}1 {2}{{{\color{codevalue}2}}}1
+    {3}{{{\color{codevalue}3}}}1 {4}{{{\color{codevalue}4}}}1
+    {5}{{{\color{codevalue}5}}}1 {6}{{{\color{codevalue}6}}}1
+    {7}{{{\color{codevalue}7}}}1 {8}{{{\color{codevalue}8}}}1
+    {9}{{{\color{codevalue}9}}}1
+}
+\lstset{style=python}
+\newcommand{\result}[1]{%
+  \par\vspace{1mm}%
+  {\small\textcolor{black!60}{出力}}\quad
+  {\codefont\fontsize{16}{18}\selectfont #1}\par}
+\setbeamercolor{lesson note}{fg=black,bg=courseblue!9}
+\newenvironment{lessonbox}
+  {\begin{beamercolorbox}[wd=\linewidth,sep=1.5mm]{lesson note}}
+  {\end{beamercolorbox}\par}
+
+\title{計算物理学B}
+\subtitle{第二回}
+\author{野垣 康介、藤本 悠輝}
+\date{2026/10/27}
+\hypersetup{pdftitle={計算物理学B 第二回},pdfauthor={野垣 康介、藤本 悠輝}}
+
+\begin{document}
+
+% Source 1: title; excluded from slide numbering.
+\begin{frame}[t,noframenumbering]
+  \titlepage
+\end{frame}
+
+% Source 2. Dates and topics follow the agreed 2026/week1 schedule.
+% Updated 2026/10/05: cancel 10/20; teach on 12/1; no makeup on 2/9.
+% Calendar: https://www.niigata-u.ac.jp/wp-content/uploads/2025/08/schedule_2026.pdf
+\begin{frame}{講義予定}
+  \setlength{\parskip}{0pt}
+  2026年度 第2学期（火曜3限）
+  \par\vspace{2mm}
+  \begingroup\centering
+    \renewcommand{\arraystretch}{1.05}
+    \begin{tabular}{@{}l@{\hspace{2mm}}l@{\hspace{4mm}}l@{\hspace{2mm}}l@{}}
+      10/6 & 四則演算 & 12/8 & モンテカルロ1 \\
+      \textcolor{courseblue}{\textbf{10/27}} &
+      \textcolor{courseblue}{\textbf{制御文（for, if）}} & 12/15 & モンテカルロ2 \\
+      \textcolor{courseblue}{11/6 (金)} & 関数 & 12/22 & 微分方程式1 \\
+      11/10 & 配列（numpy） & 1/12 & 微分方程式2 \\
+      11/17 & 可視化（matplotlib） & 1/19 & 偏微分方程式1 \\
+      11/24 & 数値微分 & 1/26 & 偏微分方程式2 \\
+      12/1 & 数値積分 & 2/2 & 根の探索 \\
+      \multicolumn{2}{c}{\small 〜中間レポート〜} &
+      \multicolumn{2}{c}{\small 〜期末レポート〜}
+    \end{tabular}\par
+  \endgroup
+  \vspace{2mm}
+  {\small
+    \textcolor{courseblue}{10/20は出張で休講。}\\
+    11/6（金）は火曜授業の振替。\par}
+  \vspace{1mm}
+  {\fontsize{7}{8}\selectfont
+    日付：\href{https://www.niigata-u.ac.jp/wp-content/uploads/2025/08/schedule_2026.pdf}{令和8年度（2026）新潟大学授業暦}\par}
+\end{frame}
+
+% Source 3. Repository navigation avoids a branch-specific notebook URL.
+\begin{frame}{授業で使うリンク}
+  \begin{itemize}
+    \setlength{\itemsep}{6mm}
+    \item Google Colab\\
+      {\small\url{https://colab.research.google.com/?hl=ja}}
+    \item 講義資料（GitHub）\\
+      {\small\url{https://github.com/nogaki/Computational_Physics_B}}
+    \item 今週の教材
+      \begin{itemize}
+        \item フォルダー：\code{2026/week2}
+        \item 実習用ノートブック：\code{week2.ipynb}
+      \end{itemize}
+  \end{itemize}
+\end{frame}
+
+% Source 4. See also the official Colab FAQ:
+% https://research.google.com/colaboratory/faq.html
+\begin{frame}[t]{GitHubからColabへ取り込む}
+  \setlength{\parskip}{0pt}
+  \begin{enumerate}
+    \setlength{\itemsep}{4mm}
+    \item GitHubで\code{week2.ipynb}を開き、\\
+      ブラウザーのアドレス欄のURLをコピーします。
+    \item Colabで「ファイル」→「ノートブックを開く」\\
+      →「GitHub」を選びます。
+    \item コピーしたURLを貼り付けて検索し、\\
+      表示されたノートブックを開きます。
+  \end{enumerate}
+  \vspace{3mm}
+  \begin{lessonbox}
+    \textbf{開いたら「ドライブにコピーを保存」}\\[1mm]
+    \small 「ファイル」メニューから、自分用のコピーを保存します。\\
+    開いただけでは、自分のドライブに保存されません。
+  \end{lessonbox}
+\end{frame}
+
+% Source 5. Corrected: Python does not create a local scope for for-loops.
+% Reference: https://docs.python.org/ja/3/reference/compound_stmts.html#the-for-statement
+\begin{frame}[t,fragile]{for文}
+  \setlength{\parskip}{0pt}
+  同じ処理を繰り返すときは、\code{for}文を使います。
+\begin{lstlisting}
+n = 5
+for i in range(n):
+    print(i)
+\end{lstlisting}
+  \begin{itemize}
+    \setlength{\itemsep}{2mm}
+    \item \code{i}は、順番に値が代入されるループ変数です。
+    \item 行末の\code{:}（コロン）を忘れずに書きます。
+    \item 繰り返す処理は字下げします（空白4個を目安に）。
+  \end{itemize}
+  \vspace{2mm}
+  \begin{lessonbox}
+    \small この例では、ループ終了後も\code{i}の値は\code{4}です。\\
+    変数がループの中だけで有効になるわけではありません。
+  \end{lessonbox}
+\end{frame}
+
+% Source 6. Reference: https://docs.python.org/ja/3/tutorial/controlflow.html#the-range-function
+\begin{frame}[t,fragile]{for文の例：0から4を表示する}
+  \setlength{\parskip}{0pt}
+\begin{lstlisting}
+for i in range(5):
+    print(i)
+\end{lstlisting}
+  \result{0\quad 1\quad 2\quad 3\quad 4\quad
+    {\normalfont\small （実際は1行ずつ表示）}}
+  \vspace{3mm}
+  \code{i}を\code{0, 1, 2, 3, 4}と変えながら、\\
+  \code{print(i)}を5回実行します。
+  \par\vspace{4mm}
+  \begin{lessonbox}
+    \textbf{\code{range(5)}に、終点の\code{5}は含まれません。}\\[1mm]
+    \small \code{range(n)}は、正の整数\code{n}に対して\\
+    \code{0}から\code{n - 1}までの整数を順に取り出せます。
+  \end{lessonbox}
+\end{frame}
+
+% Supplement: start, stop, and step in range.
+\begin{frame}[t]{rangeの開始値と刻み幅}
+  \setlength{\parskip}{0pt}
+  \code{range(start, stop, step)}\\[1mm]
+  開始値・終点・刻み幅を指定します。
+  \par\vspace{2mm}
+  \begingroup\centering
+    \renewcommand{\arraystretch}{1.3}
+    \begin{tabular}{@{}l@{\hspace{8mm}}l@{}}
+      \textcolor{courseblue}{書き方} &
+      \textcolor{courseblue}{順に取り出す値}\\
+      \hline
+      \code{range(1, 6)} & \code{1\quad 2\quad 3\quad 4\quad 5}\\
+      \code{range(0, 10, 2)} & \code{0\quad 2\quad 4\quad 6\quad 8}\\
+      \code{range(5, 0, -1)} & \code{5\quad 4\quad 3\quad 2\quad 1}
+    \end{tabular}\par
+  \endgroup
+  \vspace{2mm}
+  \begin{lessonbox}
+    \textbf{終点は含みません。}刻み幅を省略すると\code{1}です。\\[1mm]
+    \small 刻み幅が負なら減少します（\code{0}は指定できません）。
+  \end{lessonbox}
+\end{frame}
+
+% Source 7. total avoids shadowing Python's built-in sum().
+\begin{frame}[t,fragile]{for文の例：総和を求める}
+  \setlength{\parskip}{0pt}
+  1から10までの整数を、順番に足していきます。
+\begin{lstlisting}
+total = 0
+for i in range(10):
+    total = total + (i + 1)
+print(total)
+\end{lstlisting}
+  \result{55}
+  \vspace{1mm}
+  {\small \code{i + 1}は1から10。足すたびに\code{total}を更新します。\\
+  最後の\code{print(total)}は字下げせず、ループの後で実行します。\par}
+  \vspace{1mm}
+  \begin{lessonbox}
+    \(\displaystyle \sum_{i=1}^{n} i = \frac{n(n+1)}{2}\)
+    \quad \(\displaystyle n=10\)なら\(\displaystyle 55\)
+  \end{lessonbox}
+\end{frame}
+
+% Supplement: compare the same loop with print inside and outside.
+\begin{frame}[t,fragile]{字下げで出力が変わる}
+  \setlength{\parskip}{0pt}
+  \code{print(total)}の字下げだけを変えて比べます。
+  \par\vspace{1mm}
+  \begin{columns}[T,onlytextwidth]
+    \begin{column}{.48\textwidth}
+      \textcolor{courseblue}{\textbf{ループの内側}}
+\begin{lstlisting}[basicstyle=\codefont\fontsize{12}{14}\selectfont,aboveskip=1mm,belowskip=0mm]
+total = 0
+for i in range(1, 4):
+    total = total + i
+    print(total)
+\end{lstlisting}
+      \result{1\quad 3\quad 6}
+      \vspace{0mm}
+      {\small 途中経過を3回表示\\
+        （実際は1行ずつ表示）\par}
+    \end{column}
+    \begin{column}{.48\textwidth}
+      \textcolor{courseblue}{\textbf{ループの外側}}
+\begin{lstlisting}[basicstyle=\codefont\fontsize{12}{14}\selectfont,aboveskip=1mm,belowskip=0mm]
+total = 0
+for i in range(1, 4):
+    total = total + i
+print(total)
+\end{lstlisting}
+      \result{6}
+      \vspace{0mm}
+      {\small 最後の結果を1回表示\par}
+    \end{column}
+  \end{columns}
+  \vspace{1mm}
+  \begin{lessonbox}
+    \small 字下げした行は、ループの中で繰り返します。\\[1mm]
+    字下げを戻すと、ループの外の処理になります。
+  \end{lessonbox}
+\end{frame}
+
+% Source 8. The mathematical double sum is typeset natively.
+\begin{frame}[t,fragile]{for文の例：二重ループ}
+  \setlength{\parskip}{0pt}
+  \code{for}文の中に、もう1つ\code{for}文を書けます。
+\begin{lstlisting}[basicstyle=\codefont\fontsize{14}{16}\selectfont]
+total = 0
+for i in range(3):
+    for j in range(5):
+        total = total + (i+1)*(j+1)
+print(total)
+\end{lstlisting}
+  \par\vspace{1mm}
+  {\small\textcolor{black!60}{出力}}\quad
+  {\codefont\fontsize{16}{18}\selectfont 90}
+  \hspace{8mm}\(\displaystyle \sum_{i=1}^{3}\sum_{j=1}^{5} ij = 90\)\par
+  \vspace{1mm}
+  {\small 外側の1回ごとに、内側を5回実行します。\\
+    \code{i + 1}は1から3、\code{j + 1}は1から5です。\par}
+\end{frame}
+
+% Source 9: replace non-executable placeholders with a concrete example.
+% Reference: https://docs.python.org/ja/3/tutorial/controlflow.html#if-statements
+\begin{frame}[t,fragile]{if文}
+  \setlength{\parskip}{0pt}
+  条件によって処理を変えるときは、\code{if}文を使います。
+\begin{lstlisting}[basicstyle=\codefont\fontsize{14}{16}\selectfont,aboveskip=1mm,belowskip=0mm]
+n = 0
+if n > 0:
+    print("positive")
+elif n == 0:
+    print("zero")
+else:
+    print("negative")
+\end{lstlisting}
+  \result{zero}
+  \vspace{1mm}
+  \begin{itemize}
+    \setlength{\itemsep}{1mm}
+    \item 上から調べ、最初に\code{True}になった処理だけ実行します。
+    \item \code{elif}は\code{else if}の略。\code{else}はそれ以外です。
+  \end{itemize}
+\end{frame}
+
+% Source 10: include all six ordinary comparison operators.
+\begin{frame}[t]{bool型と比較}
+  \setlength{\parskip}{0pt}
+  比較の結果は、真偽値を表す\code{bool}型です。\\
+  値は\code{True}（真）か\code{False}（偽）の2つです。
+  \par\vspace{3mm}
+  \begingroup\centering
+    \renewcommand{\arraystretch}{1.1}
+    \begin{tabular}{@{}>{\codefont}l@{\hspace{6mm}}l@{\hspace{6mm}}>{\codefont}l@{\hspace{6mm}}>{\codefont}l@{}}
+      \multicolumn{1}{l}{\textcolor{courseblue}{演算子}} &
+      \textcolor{courseblue}{意味} &
+      \multicolumn{1}{l}{\textcolor{courseblue}{コード}} &
+      \multicolumn{1}{l}{\textcolor{courseblue}{結果}}\\
+      \hline
+      >  & より大きい & 10 > 5 & True\\
+      <  & より小さい & 10 < 5 & False\\
+      >= & 以上 & 5 >= 5 & True\\
+      <= & 以下 & 5 <= 5 & True\\
+      == & 等しい & 10 == 2 & False\\
+      != & 等しくない & 10 != 2 & True
+    \end{tabular}\par
+  \endgroup
+  \vspace{3mm}
+  \begin{lessonbox}
+    \textbf{比較は\code{==}、代入は\code{=}です。}
+  \end{lessonbox}
+\end{frame}
+
+% Source 11: complete truth table for Boolean operands.
+\begin{frame}{bool型の演算}
+  \setlength{\parskip}{0pt}
+  \begin{itemize}
+    \setlength{\itemsep}{3mm}
+    \item \code{and}（かつ）：両方が\code{True}なら\code{True}
+    \item \code{or}（または）：少なくとも一方が\code{True}なら\code{True}
+  \end{itemize}
+  \vspace{4mm}
+  \begingroup\centering
+    \renewcommand{\arraystretch}{1.25}
+    \begin{tabular}{@{}>{\codefont}l@{\hspace{6mm}}>{\codefont}l@{\hspace{7mm}}>{\codefont}l@{\hspace{7mm}}>{\codefont}l@{}}
+      \textcolor{courseblue}{A} & \textcolor{courseblue}{B} &
+      \textcolor{courseblue}{A and B} & \textcolor{courseblue}{A or B}\\
+      \hline
+      True & True & True & True\\
+      True & False & False & True\\
+      False & True & False & True\\
+      False & False & False & False
+    \end{tabular}\par
+  \endgroup
+  \vspace{3mm}
+  \begin{lessonbox}
+    \code{or}は、両方が\code{True}の場合も\code{True}です。
+  \end{lessonbox}
+\end{frame}
+
+% Source 12: use short, grammatical messages that fit at a readable size.
+\begin{frame}[t,fragile]{if文の例：両方が偶数}
+  \setlength{\parskip}{0pt}
+  \code{n}と\code{m}の両方が偶数かどうかを調べます。
+\begin{lstlisting}
+n = 5
+m = 10
+if n % 2 == 0 and m % 2 == 0:
+    print("Both are even.")
+else:
+    print("At least one is odd.")
+\end{lstlisting}
+  \result{At least one is odd.}
+  \vspace{2mm}
+  \begin{lessonbox}
+    \small \code{\%}は割り算のあまり。\code{n \% 2 == 0}で偶数を判定します。\\
+    今回は\code{False and True}なので、\code{else}側を実行します。
+  \end{lessonbox}
+\end{frame}
+
+% Source 13: or means "at least one", not "exactly one".
+\begin{frame}[t,fragile]{if文の例：少なくとも一方が偶数}
+  \setlength{\parskip}{0pt}
+  \code{n}と\code{m}の少なくとも一方が偶数かどうかを調べます。
+\begin{lstlisting}
+n = 5
+m = 10
+if n % 2 == 0 or m % 2 == 0:
+    print("At least one is even.")
+else:
+    print("Both are odd.")
+\end{lstlisting}
+  \result{At least one is even.}
+  \vspace{2mm}
+  \begin{lessonbox}
+    \small 今回は\code{False or True}なので、\code{if}側を実行します。\\
+    \code{n = 4}に変え、両方が偶数の場合も試してみましょう。
+  \end{lessonbox}
+\end{frame}
+
+% Source 14.
+\begin{frame}[t,fragile]{for文とif文の組み合わせ}
+  \setlength{\parskip}{0pt}
+  0から9までの整数のうち、偶数だけを表示します。
+  \par\vspace{2mm}
+\begin{lstlisting}
+for i in range(10):
+    if i % 2 == 0:
+        print(i)
+\end{lstlisting}
+  \result{0\quad 2\quad 4\quad 6\quad 8\quad
+    {\normalfont\small （実際は1行ずつ表示）}}
+  \vspace{3mm}
+  \begin{itemize}
+    \setlength{\itemsep}{2mm}
+    \item ループの中で、\code{i \% 2 == 0}を調べます。
+    \item \code{True}のときだけ、\code{print(i)}を実行します。
+    \item \code{print(i)}は、さらに1段字下げします。
+  \end{itemize}
+\end{frame}
+
+% Source 15: executable example of a condition-controlled loop.
+\begin{frame}[t,fragile]{while文}
+  \setlength{\parskip}{0pt}
+  条件が\code{True}である間、処理を繰り返します。
+\begin{lstlisting}
+n = 1
+while n < 5:
+    print(n)
+    n = n + 1
+\end{lstlisting}
+  \begin{itemize}
+    \setlength{\itemsep}{1.5mm}
+    \item 繰り返す回数を、あらかじめ決めずに使えます。
+    \item 毎回、処理の前に条件を調べます。
+    \item 1〜4を表示し、\code{n}が\code{5}になると終了します。
+  \end{itemize}
+  \vspace{1mm}
+  \begin{lessonbox}
+    \small 条件が変わらないと、無限ループになることがあります。\\
+    停止しないときは、Colabのセルの停止ボタンを押します。
+  \end{lessonbox}
+\end{frame}
+
+% Source 16.
+\begin{frame}[t,fragile]{while文の例：2の累乗}
+  \setlength{\parskip}{0pt}
+  2の累乗で、初めて100以上になる値を探します。
+\begin{lstlisting}
+n = 2
+while n < 100:
+    n = n * 2
+print(n)
+\end{lstlisting}
+  \result{128}
+  \vspace{3mm}
+  \begingroup\centering
+    \(2 \longrightarrow 4 \longrightarrow 8 \longrightarrow 16
+      \longrightarrow 32 \longrightarrow 64 \longrightarrow 128\)\par
+  \endgroup
+  \vspace{3mm}
+  \begin{lessonbox}
+    \small \code{n = 64}では条件が\code{True}なので、もう一度2倍します。\\
+    \code{n = 128}では\code{n < 100}が\code{False}になり、終了します。
+  \end{lessonbox}
+\end{frame}
+
+% Source 17: keep the four original exercises and move the range practice here.
+% Fibonacci indexing is made explicit; no exercise answers are supplied.
+\begin{frame}[t]{実習タイム}
+  \setlength{\parskip}{0pt}
+  新しいセルに自分のコードを書いて、順に試しましょう。
+  \par\vspace{0mm}
+  \begin{itemize}
+    \setlength{\itemsep}{0.5mm}
+    \item \code{range}を使い、10から1へ逆順に表示する
+    \item \(\displaystyle \sum_{i=0}^{10}2^i\)を求める\\
+      {\small ヒント：累乗は\code{2 ** i}。}
+    \item 1から100までの3の倍数の総和を求める\\
+      {\small \code{for}文と\code{if}文を組み合わせましょう。}
+    \item 1から100で、3の倍数を\(m\)個、5の倍数を\(n\)個と\\
+      するとき、\(m+n\)を求める\\
+      {\small 15の倍数は、それぞれの個数に含めます。}
+    \item フィボナッチ数列の第10項を求める\\
+      {\small \(F_1=F_2=1,\quad F_k=F_{k-1}+F_{k-2}\quad(k\geq3)\)}
+  \end{itemize}
+\end{frame}
+
+\end{document}

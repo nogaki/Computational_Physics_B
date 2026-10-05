@@ -1,0 +1,65 @@
+% Shared Beamer design. Load after \documentclass using \input.
+% Engine: LuaLaTeX. Fonts: UD Digi Kyokasho N (regular/bold), Arial.
+\usepackage{luatexja-fontspec}
+\setmainjfont[BoldFont={UD Digi Kyokasho N Bold}]{UD Digi Kyokasho N}
+\setsansjfont[BoldFont={UD Digi Kyokasho N Bold}]{UD Digi Kyokasho N}
+\setmonojfont[BoldFont={UD Digi Kyokasho N Bold}]{UD Digi Kyokasho N}
+\setmainfont{Arial}
+\setsansfont{Arial}
+\setmonofont{Arial}
+\renewcommand{\kanjifamilydefault}{\gtdefault}
+
+% Typeset mathematics with a dedicated TeX math font, independent of Arial.
+\usefonttheme{professionalfonts}
+\usepackage[mathrm=sym]{unicode-math}
+\setmathfont{Latin Modern Math}
+\setoperatorfont{\symup}
+
+\definecolor{courseblue}{HTML}{4472C4}
+\definecolor{ruleblue}{HTML}{8FAADC}
+\setbeamercolor{normal text}{fg=black,bg=white}
+\setbeamercolor{structure}{fg=courseblue}
+\setbeamercolor{frametitle}{fg=black,bg=white}
+\setbeamercolor{title banner}{fg=white,bg=courseblue}
+\setbeamerfont{frametitle}{size=\fontsize{18}{22}\selectfont,series=\mdseries}
+\setbeamerfont{quote}{shape=\upshape}
+\setbeamersize{text margin left=9mm,text margin right=9mm}
+\setbeamertemplate{navigation symbols}{}
+\setbeamercolor{page number}{fg=gray,bg=white}
+\setbeamertemplate{footline}{%
+  \begin{beamercolorbox}[wd=\paperwidth,ht=2.5mm,dp=1.5mm]{page number}
+    \hfill{\fontsize{8}{9}\selectfont
+      \ifnum\value{framenumber}>0
+        \insertframenumber\,/\,\inserttotalframenumber
+      \fi}\hspace*{3mm}
+  \end{beamercolorbox}}
+\setbeamertemplate{headline}{%
+  \hfill\textcolor{gray}{\fontsize{6}{7}\selectfont
+    \hypersetup{linkcolor=gray}% Keep Beamer's title links in the header color.
+    \ifnum\value{framenumber}=0 \insertshortdate\enspace\fi
+    \insertshorttitle\space\insertshortsubtitle}\hspace{2mm}\vspace{1.5mm}}
+\setbeamertemplate{frametitle}{%
+  \vspace{2mm}\centering\insertframetitle\par
+  \vspace{-1mm}{\color{ruleblue}\rule{.44\paperwidth}{.5pt}}\par
+  \vspace{2mm}}
+\setbeamercolor{itemize item}{fg=courseblue}
+\setbeamercolor{itemize subitem}{fg=black}
+\setbeamercolor{itemize subsubitem}{fg=black}
+\setbeamertemplate{itemize item}{\textbullet}
+\setbeamertemplate{itemize subitem}{\textnormal{-}}
+\setbeamertemplate{itemize subsubitem}{\textnormal{-}}
+\setlength{\parskip}{.45em}
+\hypersetup{colorlinks=true,urlcolor=courseblue}
+
+% Use \titlepage inside a [t,noframenumbering] frame. The background extends
+% 1 mm past both page edges to avoid hairline gaps in PDF viewers.
+\setbeamertemplate{title page}{%
+  \vspace{2mm}
+  \begin{beamercolorbox}[wd=\paperwidth,ht=43mm,dp=13mm,colsep*=1mm,center]{title banner}
+    {\fontsize{32}{40}\selectfont\inserttitle\par}
+    \vspace{2mm}
+    {\fontsize{20}{24}\selectfont\insertsubtitle\par}
+  \end{beamercolorbox}
+  \vspace{10mm}
+  \hfill\insertauthor
+}
