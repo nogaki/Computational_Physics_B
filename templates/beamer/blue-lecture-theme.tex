@@ -4,9 +4,16 @@
 \setmainjfont[BoldFont={UD Digi Kyokasho N Bold}]{UD Digi Kyokasho N}
 \setsansjfont[BoldFont={UD Digi Kyokasho N Bold}]{UD Digi Kyokasho N}
 \setmonojfont[BoldFont={UD Digi Kyokasho N Bold}]{UD Digi Kyokasho N}
-\setmainfont{Arial}
-\setsansfont{Arial}
-\setmonofont{Arial}
+% Liberation Sans keeps the layout usable on systems without Arial.
+\IfFontExistsTF{Arial}{
+  \setmainfont{Arial}
+  \setsansfont{Arial}
+  \setmonofont{Arial}
+}{
+  \setmainfont{Liberation Sans}
+  \setsansfont{Liberation Sans}
+  \setmonofont{Liberation Sans}
+}
 \renewcommand{\kanjifamilydefault}{\gtdefault}
 
 % Typeset mathematics with a dedicated TeX math font, independent of Arial.

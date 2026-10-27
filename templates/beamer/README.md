@@ -6,7 +6,7 @@
 - `template.tex`: コピーして使うひな形（表紙と通常スライドの2枚）
 - `template.pdf`: ひな形の表示見本
 
-日本語にはUD デジタル 教科書体 N、英数字にはArialを使います。
+日本語にはUD デジタル 教科書体 N、英数字にはArialを使います。Arialがない環境ではLiberation Sansを使います。
 数式にはLatin Modern Mathを使い、TeXの数式機能で組版します。
 青い表紙の背景は左右のページ端から1mmずつはみ出し、細い隙間を防ぎます。
 通常スライドには中央の題名と、その下にページ幅の44%の青線が付きます。
@@ -45,7 +45,7 @@ latexmk -lualatex -interaction=nonstopmode -halt-on-error slide.tex
 ## 別のプロジェクトで使う
 
 `template.tex` と `blue-lecture-theme.tex` を同じディレクトリへコピーすれば、そのまま使えます。
-LuaLaTeX、Beamer、LuaTeX-jaと、UD デジタル 教科書体 N（通常・太字）・Arialが必要です。
+LuaLaTeX、Beamer、LuaTeX-jaと、UD デジタル 教科書体 N（通常・太字）・Arial（またはLiberation Sans）が必要です。
 別のPCやOverleafでコンパイルする場合も、同じフォントを利用できるようにしてください。
 生成済みのPDFを閲覧するだけならフォントのインストールは不要です。
 

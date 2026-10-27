@@ -1,0 +1,337 @@
+% !TEX program = lualatex
+\documentclass[12pt,aspectratio=43]{beamer}
+\input{../../../templates/beamer/blue-lecture-theme.tex}
+\setlength{\parskip}{0pt}
+\usepackage{listings}
+\usepackage{upquote}
+\IfFontExistsTF{Consolas}{\newfontfamily\codefont{Consolas}}{\newfontfamily\codefont{Liberation Mono}}
+\definecolor{codevalue}{HTML}{7A3E9D}
+\definecolor{codebuiltin}{HTML}{006DB0}
+\definecolor{codestring}{HTML}{267348}
+\newcommand{\code}[1]{{\codefont #1}}
+
+\lstdefinestyle{python}{
+  language=Python,
+  basicstyle=\codefont\fontsize{13}{15}\selectfont,
+  keywordstyle=\color{codebuiltin},
+  keywordstyle=[2]\color{codebuiltin},
+  morekeywords=[2]{print},
+  stringstyle=\color{codestring},
+  showstringspaces=false,
+  columns=fullflexible,
+  keepspaces=true,
+  upquote=true,
+  tabsize=4,
+  breaklines=true,
+  breakatwhitespace=true,
+  backgroundcolor=\color{black!4},
+  frame=single,framerule=0pt,framesep=1.5mm,
+  xleftmargin=1mm,xrightmargin=1mm,
+  aboveskip=1mm,belowskip=0.5mm,
+  literate=*{0}{{{\color{codevalue}0}}}1
+    {1}{{{\color{codevalue}1}}}1 {2}{{{\color{codevalue}2}}}1
+    {3}{{{\color{codevalue}3}}}1 {4}{{{\color{codevalue}4}}}1
+    {5}{{{\color{codevalue}5}}}1 {6}{{{\color{codevalue}6}}}1
+    {7}{{{\color{codevalue}7}}}1 {8}{{{\color{codevalue}8}}}1
+    {9}{{{\color{codevalue}9}}}1
+}
+\lstset{style=python}
+\newcommand{\out}[1]{%
+  \par\vspace{.5mm}\noindent
+  {\small\textcolor{black!60}{出力}}\hspace{1mm}%
+  \begin{minipage}[t]{.88\linewidth}\vspace{0pt}%
+    {\codefont\fontsize{11}{12.5}\selectfont #1}%
+  \end{minipage}\par}
+\setbeamercolor{lesson note}{fg=black,bg=courseblue!9}
+\newenvironment{lessonbox}
+  {\begin{beamercolorbox}[wd=\linewidth,sep=1.5mm]{lesson note}}
+  {\end{beamercolorbox}\par}
+
+\title[計算物理学B]{計算物理学B}
+\subtitle[第四回付録]{第四回付録：arrayとndarray}
+\author{野垣 康介、藤本 悠輝}
+\date[2026/11/10]{2026/11/10}
+\hypersetup{pdftitle={計算物理学B 第四回付録：arrayとndarray},pdfauthor={野垣 康介、藤本 悠輝}}
+
+\begin{document}
+
+% 表紙
+\begin{frame}[t,noframenumbering]
+  \titlepage
+\end{frame}
+
+% 1. 名前と基本的な違い
+\begin{frame}[t]{3種類の配列：名前と役割}
+  \small
+  \vspace{-1mm}
+  \begingroup
+    \renewcommand{\arraystretch}{1.12}
+    \begin{tabular}{@{}p{3.3cm}p{6.6cm}@{}}
+      \hline
+      \textbf{名前} & \textbf{できること・特徴} \\
+      \hline
+      \code{list} &
+        Python組込み。異なる型を混ぜられ、要素を追加・削除できます。 \\
+      \code{array.array} &
+        標準ライブラリの可変1次元配列。型コードで要素型をそろえます。 \\
+      \mbox{\code{numpy.ndarray}} &
+        NumPyの1次元・多次元配列。\code{dtype}と\code{shape}を持ち、要素ごとの計算や行列計算に便利です。 \\
+      \hline
+    \end{tabular}\par
+  \endgroup
+  \vspace{1mm}
+  \begin{lessonbox}
+    \code{np.array(...)}は作成関数、\code{ndarray}は配列の型です。1次元の結果も\code{ndarray}です。
+  \end{lessonbox}
+\end{frame}
+
+% 2. 作り方と型の指定
+\begin{frame}[t,fragile]{作り方と型の指定}
+  \vspace{-1mm}
+\begin{lstlisting}
+import array as ar
+import numpy as np
+a_std = ar.array("d", [1.0, 2.0])
+a_np = np.array([1.0, 2.0], dtype=float)
+print(a_std.typecode, a_np.dtype, a_np.shape)
+\end{lstlisting}
+  \out{d float64 (2,)}
+  \small \code{'d'}はCのdouble、\code{'i'}はCのint（幅は環境依存）で、型コードはPythonの版にも依存します。\code{np.array(...)}は型を推定し、\code{dtype}で明示もできます。\code{typecode}とは別の指定方式です。
+\end{frame}
+
+% 3. 演算子の違い
+\begin{frame}[t,fragile]{同じ演算子でも意味が変わる}
+  \vspace{-1mm}
+\begin{lstlisting}
+a_std = ar.array("d", [1.0, 2.0])
+a_np = np.array([1.0, 2.0])
+print((a_std * 2).tolist())
+print(a_np * 2)
+\end{lstlisting}
+  \out{\begin{tabular}{@{}l@{}}
+    [1.0, 2.0, 1.0, 2.0]\\\relax
+    [2. 4.]
+  \end{tabular}}
+  \vspace{-1mm}
+  \begin{lessonbox}
+    同じ型コードの標準\code{array}の\code{+}は連結、\code{* 2}は繰り返し。\code{**}は\code{TypeError}です。\\
+    \code{ndarray}の\code{+}、\code{*}、\code{**}は要素ごとの演算、\code{@}は行列積です。
+  \end{lessonbox}
+\end{frame}
+
+% 4. 標準arrayの追加・削除
+\begin{frame}[t,fragile]{標準\code{array}の追加・削除}
+  \begin{columns}[T,onlytextwidth]
+    \begin{column}{.48\textwidth}
+      \small すべて元配列を書き換えます。
+      \par\vspace{1mm}
+      \code{append(x)}・\code{extend(xs)}：末尾へ追加。\\
+      \code{insert(i, x)}：添字位置へ追加。\\
+      \code{del a[i]}：その要素を削除。\\
+      \code{pop(i)}：削除して値を返す。\code{i}省略時は末尾。\\
+      \code{remove(x)}：最初に一致する値を1つ削除。
+    \end{column}
+    \begin{column}{.51\textwidth}
+\begin{lstlisting}
+a = ar.array("d", [1, 2, 2, 3])
+a.append(4)
+print(a.pop())
+a.remove(2)
+print(a.tolist())
+\end{lstlisting}
+      \out{4.0\par [1.0, 2.0, 3.0]}
+    \end{column}
+  \end{columns}
+  \vspace{1mm}
+  \small 範囲外・空の\code{pop}は\code{IndexError}、見つからない値への\code{remove}は\code{ValueError}です。
+\end{frame}
+
+% 5. NumPyの追加
+\begin{frame}[t,fragile]{NumPyの追加は返り値を受け取る}
+  \small \code{ndarray}に\code{append}メソッドはありません。\code{np.append}・\code{np.insert}は新配列を返します。
+\begin{lstlisting}
+a_np = np.array([1.0, 2.0, 2.0, 3.0])
+grown_np = np.append(a_np, 4)
+inserted_np = np.insert(a_np, 1, 9)
+print(a_np, grown_np, inserted_np, sep="\n")
+\end{lstlisting}
+  \out{\begin{tabular}{@{}l@{}}
+    [1. 2. 2. 3.]\\\relax
+    [1. 2. 2. 3. 4.]\\\relax
+    [1. 9. 2. 2. 3.]
+  \end{tabular}}
+  \small 元に反映するには返り値を代入します。
+\end{frame}
+
+% 6. NumPyの削除
+\begin{frame}[t,fragile]{NumPyの削除：値か、添字か}
+  \small \code{np.delete}は添字を指定し、条件式は条件に合う値を選びます。
+\begin{lstlisting}
+a_np = np.array([1.0, 2.0, 2.0, 3.0])
+print(np.delete(a_np, 1))
+print(a_np[a_np != 2])
+print(a_np)
+\end{lstlisting}
+  \out{\begin{tabular}{@{}l@{}}
+    [1. 2. 3.]\\\relax
+    [1. 3.]\\\relax
+    [1. 2. 2. 3.]
+  \end{tabular}}
+  \small \code{np.delete(a\_np, 1)}は添字1を削除。\code{a\_np[a\_np != 2]}は値2をすべて除きます。どちらも新配列を返します。直接の添字代入は元を更新します。
+\end{frame}
+
+% 7. axis
+\begin{frame}[t,fragile]{多次元配列の追加と\code{axis}}
+\begin{lstlisting}
+m = np.array([[1, 0], [0, 2]])
+r = np.array([[-1, 0]])
+joined = np.concatenate((m, r), axis=0)
+flat = np.append(m, r)
+print(joined.shape, flat.shape)
+\end{lstlisting}
+  \out{(3, 2) (6,)}
+  \small \code{axis=0}は行、\code{axis=1}は列。結合する軸以外の大きさをそろえます。\\
+  \code{np.append}・\code{np.insert}・\code{np.delete}は既定の\code{axis=None}で平坦化。\code{np.concatenate}は既定の\code{axis=0}です。
+\end{frame}
+
+% 8. スライスとコピー
+\begin{frame}[t,fragile]{スライスはコピーか、共有か}
+\begin{lstlisting}
+a_std = ar.array("d", [1, 2, 3, 4])
+s_std = a_std[1:3]
+s_std[0] = 99
+a_np = np.array([1., 2., 3., 4.])
+s_np = a_np[1:3]
+s_np[0] = 99
+print(a_std.tolist(), a_np, sep="\n")
+\end{lstlisting}
+  \out{\begin{tabular}{@{}l@{}}
+    [1.0, 2.0, 3.0, 4.0]\\\relax
+    [ 1. 99.  3.  4.]
+  \end{tabular}}
+\end{frame}
+
+% 9. viewとcopy・高度な添字
+\begin{frame}[t,fragile]{viewとcopy・高度な添字}
+\begin{lstlisting}
+a_np = np.array([1., 2., 3., 4.])
+selected_np = a_np[[1, 2]]
+selected_np[0] = 99
+copy_np = a_np[1:3].copy()
+copy_np[0] = -1
+print(a_np)
+\end{lstlisting}
+  \out{[1. 2. 3. 4.]}
+  \small 標準\code{array}のスライスはコピー、NumPyの基本スライスはviewです。整数配列・条件配列による選択結果と\code{.copy()}も独立配列です。直接の添字代入は元を更新し、\code{b = a}は同じオブジェクトを参照します。
+\end{frame}
+
+% 10. shape, reshape, 転置と行列積
+\begin{frame}[t,fragile]{\code{shape}・\code{reshape}・転置・行列積}
+\begin{lstlisting}
+matrix_np = np.arange(4).reshape(2, 2)
+vector_np = np.array([1, 2])
+print((matrix_np @ vector_np).tolist())
+print(matrix_np.T.tolist())
+print(vector_np.shape, vector_np.T.shape)
+\end{lstlisting}
+  \out{\begin{tabular}{@{}l@{}}
+    [2, 8]\\\relax
+    [[0, 2], [1, 3]]\\
+    (2,) (2,)
+  \end{tabular}}
+  \small \code{reshape}は要素数を保ち、結果はviewまたはcopyです。\code{@}は行列積。\code{.T}は2次元では転置、1次元では形を変えません。
+\end{frame}
+
+% 11. 標準arrayでの整数代入
+\begin{frame}[t,fragile]{整数型への小数代入：標準\code{array}}
+  \small \code{array('i')}の要素はCのint型です。小数はそのまま代入できません。
+\begin{lstlisting}
+int_std = ar.array("i", [1, 2])
+int_std[0] = -2.5
+\end{lstlisting}
+  \out{\code{TypeError}}
+\end{frame}
+
+% 12. NumPyでの整数代入
+\begin{frame}[t,fragile]{整数\code{ndarray}へ小数を代入すると}
+\begin{lstlisting}
+int_np = np.array([1, 2], dtype=int)
+int_np[0] = -2.5
+float_np = np.array([1, 2],
+                    dtype=float)
+float_np[0] = -2.5
+print(int_np, float_np)
+\end{lstlisting}
+  \out{[-2  2] [-2.5  2. ]}
+  \small この代入では小数部が0方向に落ち、\code{-2}になります。小数を保持するなら\code{dtype=float}で作ります。これはこの要素代入例の結果です。
+\end{frame}
+
+% 13. 相互変換とコピー
+\begin{frame}[t,fragile]{相互変換とコピー}
+\vspace{-1mm}
+\begin{lstlisting}
+source_std = ar.array("d", [0, 1])
+converted_np = np.array(source_std)
+converted_np[0] = 99
+print(source_std.tolist(), converted_np)
+print(np.sin(source_std), type(np.sin(source_std)))
+\end{lstlisting}
+  \out{\begin{tabular}{@{}l@{}}
+    [0.0, 1.0] [99.  1.]\\\relax
+    [0.         0.84147098] \textless class 'numpy.ndarray'\textgreater
+  \end{tabular}}
+  \small \code{np.sin}は標準\code{array}を受け取り\code{ndarray}を返します。共有・コピー条件は変換方法で異なります。
+\end{frame}
+
+% 14. 2次元配列を標準arrayへ戻す
+\begin{frame}[t,fragile]{2次元配列を標準\code{array}へ戻す}
+  \small 1次元なら\code{ar.array('d', nd.tolist())}で戻せます。2次元の\code{tolist()}は入れ子なので、平坦化します。
+\begin{lstlisting}
+matrix_np = np.array([[1.0, 2.0], [3.0, 4.0]])
+flat_std = ar.array("d", matrix_np.flatten().tolist())
+print(flat_std.tolist())
+\end{lstlisting}
+  \out{[1.0, 2.0, 3.0, 4.0]}
+  \small \code{flatten()}後は値が並ぶだけで、\code{(2, 2)}の形は残りません。形が必要なら\code{ndarray}で扱います。
+\end{frame}
+
+% 15. 物理の計算：標準array
+\begin{frame}[t,fragile]{自由落下を標準\code{array}で計算する}
+  \small 静止・原点から落下、下向きを正、空気抵抗なし、\(g=10.0\ \mathrm{m/s^2}\)とします。
+  \(\displaystyle x(t)=\frac{1}{2}gt^2=5.0t^2\quad(t\geq0)\)
+\begin{lstlisting}
+times_std = ar.array("d", [0., 1., 2.])
+positions_std = ar.array("d")
+for time_value in times_std:
+    positions_std.append(
+        5.0 * time_value ** 2)
+print(positions_std.tolist())
+\end{lstlisting}
+  \out{[0.0, 5.0, 20.0]}
+  \small 時刻を順番に走査し、各時刻の位置を\code{append}で追加します。
+\end{frame}
+
+% 16. 物理の計算：ndarray
+\begin{frame}[t,fragile]{同じ自由落下を\code{ndarray}で計算する}
+  \small 同じ条件・時刻では、配列演算で全位置をまとめて求められます。
+\begin{lstlisting}
+times_np = np.array([0., 1., 2.])
+positions_np = 5.0 * times_np ** 2
+print(positions_np)
+\end{lstlisting}
+  \out{[ 0.  5. 20.]}
+  \begin{lessonbox}
+    1次元の同型値を標準ライブラリだけで扱うなら\code{array.array}、一括計算・多次元・行列計算なら\code{ndarray}が便利です。速度は実際の条件で測ります。
+  \end{lessonbox}
+  \vfill
+  {\fontsize{8}{10}\selectfont
+    仕様・使用例：
+    \href{https://docs.python.org/3/library/array.html}{Python：array}、
+    \href{https://numpy.org/doc/stable/user/quickstart.html}{NumPy：基本操作}、
+    \href{https://numpy.org/doc/stable/user/basics.copies.html}{コピーとview}\\
+    \href{https://numpy.org/doc/stable/reference/generated/numpy.append.html}{np.append}、
+    \href{https://numpy.org/doc/stable/reference/generated/numpy.delete.html}{np.delete}、
+    \href{https://numpy.org/doc/stable/reference/generated/numpy.array.html}{np.array}}
+\end{frame}
+
+\end{document}

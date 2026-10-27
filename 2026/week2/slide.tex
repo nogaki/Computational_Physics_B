@@ -6,7 +6,8 @@
 \usepackage{array}
 \usepackage{listings}
 \usepackage{upquote}
-\newfontfamily\codefont{Consolas}
+% Match Consolas character widths when using the fallback font.
+\IfFontExistsTF{Consolas}{\newfontfamily\codefont{Consolas}}{\newfontfamily\codefont[Scale=0.916]{Liberation Mono}}
 \definecolor{codevalue}{HTML}{7A3E9D}
 \definecolor{codebuiltin}{HTML}{006DB0}
 \definecolor{codestring}{HTML}{267348}
@@ -460,6 +461,24 @@ print(n)
   \begin{lessonbox}
     \small \code{n = 64}では条件が\code{True}なので、もう一度2倍します。\\
     \code{n = 128}では\code{n < 100}が\code{False}になり、終了します。
+  \end{lessonbox}
+\end{frame}
+
+% Moved from week3: introduce break after for, if, and while.
+\begin{frame}[t,fragile]{break文}
+  \setlength{\parskip}{0pt}
+  \code{break}は、\code{for}文や\code{while}文を途中で終了します。
+\begin{lstlisting}
+for i in range(10):
+    print(i)
+    if i > 5:
+        break
+\end{lstlisting}
+  \result{0\quad 1\quad 2\quad 3\quad 4\quad 5\quad 6}
+  {\small （実際は1行ずつ表示）\par}
+  \vspace{2mm}
+  \begin{lessonbox}
+    \small \code{i}が\code{6}になったとき、\code{print(i)}の後に\code{break}を実行します。
   \end{lessonbox}
 \end{frame}
 
