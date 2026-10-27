@@ -5,7 +5,7 @@
 | 年度 | 内容 |
 |---|---|
 | [2025](2025/) | `main`から引き継いだ講義資料・ノートブック・レポート課題 |
-| [2026](2026/) | 2026年度の編集済み資料。現在は第1回・第2回を掲載 |
+| [2026](2026/) | 2026年度の編集済み資料。現在は第1回〜第4回を掲載 |
 
 ```text
 2025/
@@ -13,7 +13,7 @@
   report1/
   report2/
 2026/
-  week1/ ～ week2/
+  week1/ ～ week4/
 templates/
   beamer/
 ```
@@ -32,5 +32,17 @@ templates/
 - [スライドPDF](2026/week2/slide.pdf)
 - [実習ノートブック](2026/week2/week2.ipynb)
 - [Beamer版の編集・コンパイル方法](2026/week2/README-beamer.md)
+
+2026年度の第3回資料：
+
+- [スライドPDF](2026/week3/slide.pdf)
+- [実習ノートブック](2026/week3/week3.ipynb)
+- [Beamer版の編集・コンパイル方法](2026/week3/README-beamer.md)
+
+2026年度の第4回資料：
+
+- [スライドPDF](2026/week4/slide.pdf)
+- [実習ノートブック](2026/week4/week4.ipynb)
+- [Beamer版の編集・コンパイル方法](2026/week4/README-beamer.md)
 
 年度共通のデザインは[Beamerテンプレート](templates/beamer/README.md)で管理します。

@@ -1,0 +1,405 @@
+% !TEX program = lualatex
+% Compile from 2026/week3: latexmk -lualatex slide.tex
+% Source: ../../2025/week3/week3.pdf (13 slides, 4:3).
+\documentclass[12pt,aspectratio=43]{beamer}
+\input{../../templates/beamer/blue-lecture-theme.tex}
+\usepackage{listings}
+\usepackage{upquote}
+\IfFontExistsTF{Consolas}{\newfontfamily\codefont{Consolas}}{\newfontfamily\codefont{Liberation Mono}}
+\definecolor{codevalue}{HTML}{7A3E9D}
+\definecolor{codebuiltin}{HTML}{006DB0}
+\definecolor{codestring}{HTML}{267348}
+\newcommand{\code}[1]{{\codefont #1}}
+
+% Python examples remain editable, with spaces and punctuation preserved.
+\lstdefinestyle{python}{
+  language=Python,
+  basicstyle=\codefont\fontsize{14}{16}\selectfont,
+  keywordstyle=\color{codebuiltin},
+  keywordstyle=[2]\color{codebuiltin},
+  morekeywords=[2]{print,range},
+  stringstyle=\color{codestring},
+  showstringspaces=false,
+  columns=fullflexible,
+  keepspaces=true,
+  upquote=true,
+  tabsize=4,
+  breaklines=false,
+  backgroundcolor=\color{black!4},
+  frame=single,framerule=0pt,framesep=1.7mm,
+  xleftmargin=1.7mm,xrightmargin=1.7mm,
+  aboveskip=1mm,belowskip=0.5mm,
+  literate=*{0}{{{\color{codevalue}0}}}1
+    {1}{{{\color{codevalue}1}}}1 {2}{{{\color{codevalue}2}}}1
+    {3}{{{\color{codevalue}3}}}1 {4}{{{\color{codevalue}4}}}1
+    {5}{{{\color{codevalue}5}}}1 {6}{{{\color{codevalue}6}}}1
+    {7}{{{\color{codevalue}7}}}1 {8}{{{\color{codevalue}8}}}1
+    {9}{{{\color{codevalue}9}}}1
+}
+\lstset{style=python}
+\newcommand{\result}[1]{%
+  \par\vspace{1mm}%
+  {\small\textcolor{black!60}{出力}}\quad
+  {\codefont\fontsize{16}{18}\selectfont #1}\par}
+\setbeamercolor{lesson note}{fg=black,bg=courseblue!9}
+\newenvironment{lessonbox}
+  {\begin{beamercolorbox}[wd=\linewidth,sep=1.5mm]{lesson note}}
+  {\end{beamercolorbox}\par}
+
+\title{計算物理学B}
+\subtitle{第三回}
+\author{野垣 康介、藤本 悠輝}
+\date{2026/11/06}
+\hypersetup{pdftitle={計算物理学B 第三回},pdfauthor={野垣 康介、藤本 悠輝}}
+
+\begin{document}
+
+% 1. 表紙
+\begin{frame}[t,noframenumbering]
+  \titlepage
+\end{frame}
+
+% 2. 2026年度の講義予定。11/6（金）の関数を強調。
+\begin{frame}{講義予定}
+  \setlength{\parskip}{0pt}
+  2026年度 第2学期（火曜3限）
+  \par\vspace{2mm}
+  \begingroup\centering
+    \renewcommand{\arraystretch}{1.05}
+    \begin{tabular}{@{}l@{\hspace{2mm}}l@{\hspace{4mm}}l@{\hspace{2mm}}l@{}}
+      10/6 & 四則演算 & 12/8 & モンテカルロ1 \\
+      10/27 & 制御文（for, if） & 12/15 & モンテカルロ2 \\
+      \textcolor{courseblue}{\textbf{11/6（金）}} &
+      \textcolor{courseblue}{\textbf{関数}} & 12/22 & 微分方程式1 \\
+      11/10 & 配列（numpy） & 1/12 & 微分方程式2 \\
+      11/17 & 可視化（matplotlib） & 1/19 & 偏微分方程式1 \\
+      11/24 & 数値微分 & 1/26 & 偏微分方程式2 \\
+      12/1 & 数値積分 & 2/2 & 根の探索 \\
+      \multicolumn{2}{c}{\small 〜中間レポート〜} &
+      \multicolumn{2}{c}{\small 〜期末レポート〜}
+    \end{tabular}\par
+  \endgroup
+  \vspace{2mm}
+  {\small
+    \textcolor{courseblue}{10/20は出張で休講。}\\
+    11/6（金）は火曜授業の振替。\par}
+  \vspace{1mm}
+  {\fontsize{7}{8}\selectfont
+    日付：\href{https://www.niigata-u.ac.jp/wp-content/uploads/2025/08/schedule_2026.pdf}{令和8年度（2026）新潟大学授業暦}\par}
+\end{frame}
+
+% 3. 授業で使う教材
+\begin{frame}{授業で使うリンク}
+  \begin{itemize}
+    \setlength{\itemsep}{6mm}
+    \item Google Colab\\
+      {\small\url{https://colab.research.google.com/?hl=ja}}
+    \item 講義資料（GitHub）\\
+      {\small\url{https://github.com/nogaki/Computational_Physics_B}}
+    \item 今週の教材
+      \begin{itemize}
+        \item フォルダー：\code{2026/week3}
+        \item 実習用ノートブック：\code{week3.ipynb}
+      \end{itemize}
+  \end{itemize}
+\end{frame}
+
+% 4. week2と同じColabへの取り込み・保存手順
+\begin{frame}[t]{GitHubからColabへ取り込む}
+  \setlength{\parskip}{0pt}
+  \begin{enumerate}
+    \setlength{\itemsep}{4mm}
+    \item GitHubで\code{week3.ipynb}を開き、\\
+      ブラウザーのアドレス欄のURLをコピーします。
+    \item Colabで「ファイル」→「ノートブックを開く」\\
+      →「GitHub」を選びます。
+    \item コピーしたURLを貼り付けて検索し、\\
+      表示されたノートブックを開きます。
+  \end{enumerate}
+  \vspace{3mm}
+  \begin{lessonbox}
+    \textbf{開いたら「ドライブにコピーを保存」}\\[1mm]
+    \small 「ファイル」メニューから、自分用のコピーを保存します。\\
+    開いただけでは、自分のドライブに保存されません。
+  \end{lessonbox}
+\end{frame}
+
+% 4. 関数を使う前に、重複する処理を見る
+\begin{frame}[t,fragile]{関数：同じ処理の繰り返し}
+  \setlength{\parskip}{0pt}
+  1から10までと、1から30までの和をそれぞれ求めます。
+\begin{lstlisting}
+sum1 = 0
+for i in range(10):
+    sum1 = sum1 + (i + 1)
+
+sum2 = 0
+for j in range(30):
+    sum2 = sum2 + (j + 1)
+
+print(sum1 + sum2)
+\end{lstlisting}
+  {\small ほぼ同じ処理を、範囲だけ変えて2回書いています。}
+\end{frame}
+
+% 5. 重複する総和処理を関数にする
+\begin{frame}[t,fragile]{関数：処理をまとめる}
+  \setlength{\parskip}{0pt}
+\begin{lstlisting}
+def sum_one2n(n):
+    total = 0
+    for i in range(n):
+        total = total + (i + 1)
+    return total
+sum1 = sum_one2n(10)
+sum2 = sum_one2n(30)
+print(sum1 + sum2)
+\end{lstlisting}
+  \result{520}
+  \vspace{1mm}
+  \begin{lessonbox}
+    \small 総和を求める処理を関数にまとめ、引数を変えて呼び出します。
+  \end{lessonbox}
+\end{frame}
+
+% 6. 関数の定義と呼び出し
+\begin{frame}[t,fragile]{関数の定義と返り値}
+  \setlength{\parskip}{0pt}
+\begin{lstlisting}
+def function_name(argument):
+    return argument
+\end{lstlisting}
+  \begin{itemize}
+    \setlength{\itemsep}{2mm}
+    \item \code{def}の後に関数名と引数を書き、行末に\code{:}を付けます。
+    \item 関数の中の処理は字下げします（空白4個を目安に）。
+    \item 引数は複数指定できます。\code{return}で呼び出し元に値を返します。
+    \item 返り値が複数の場合は、タプル（\code{tuple}）として返ります。
+    \item 関数内で定義した変数は、関数の外では使えません。
+  \end{itemize}
+\end{frame}
+
+% 7. printとreturnの違い
+\begin{frame}[t,fragile]{printとreturnの違い}
+  \setlength{\parskip}{0pt}
+  \code{print}は表示し、\code{return}は値を返します。\code{return}がない関数の返り値は\code{None}（値なし）です。
+  \begin{columns}[T,onlytextwidth]
+    \begin{column}{.48\textwidth}
+      \textbf{\code{print}で表示}
+\begin{lstlisting}[aboveskip=0mm,belowskip=0mm]
+def show(x):
+    print(x * x)
+
+a = show(3)
+print(a)
+\end{lstlisting}
+      {\small\textcolor{black!60}{出力}}\quad
+      {\codefont\fontsize{16}{18}\selectfont 9\\
+        \hspace*{1cm}None\par}
+      {\small \code{a}には\code{None}が入ります。}
+    \end{column}
+    \begin{column}{.48\textwidth}
+      \textbf{\code{return}で値を返す}
+\begin{lstlisting}[aboveskip=0mm,belowskip=0mm]
+def square(x):
+    return x * x
+
+b = square(3)
+print(b)
+\end{lstlisting}
+      \result{9}
+      {\small \code{b}に入る\code{9}は後の計算に使えます。}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% 8. ローカル変数tmpを関数の外から参照するとNameError
+\begin{frame}[t,fragile]{関数内の変数}
+  \setlength{\parskip}{0pt}
+\begin{lstlisting}
+def sum_all(x, y, z):
+    tmp = x + y
+    return tmp + z
+
+l = 3
+m = 2
+n = 5
+print(sum_all(l, m, n))
+\end{lstlisting}
+  \result{10}
+  \vspace{1mm}
+  \small 関数内で作った\code{tmp}は外から使えません。\code{print(tmp)}を実行すると、意図的に\code{NameError}になります。
+\end{frame}
+
+% 9. 引数と物理パラメータ
+\begin{frame}[t,fragile]{引数と物理パラメータ}
+  \setlength{\parskip}{0pt}
+  運動エネルギーは\(E=\frac{1}{2}mv^2\)です。\(m\)は質量、\(v\)は速度です。
+  \par\vspace{1mm}
+  単位は、質量\(m\)：\(\mathrm{kg}\)、速度\(v\)：\(\mathrm{m/s}\)、エネルギー\(E\)：\(\mathrm{J}\)です。
+\begin{lstlisting}
+def kinetic_energy(m, v):
+    return 0.5 * m * v ** 2
+
+print(kinetic_energy(2.0, 3.0))
+\end{lstlisting}
+  \result{9.0}
+  \begin{lessonbox}
+    \small 呼び出しの1番目の値\code{2.0}が\code{m}、2番目の値\code{3.0}が\code{v}に入ります。
+  \end{lessonbox}
+\end{frame}
+
+% 10. 自由落下で複数の値を返す
+\begin{frame}[t,fragile]{複数の返り値：自由落下}
+  \setlength{\parskip}{0pt}
+  空気抵抗を無視し、静止状態から落下する物体を考えます。落下開始位置を\(x=0\)、下向きを正とします。
+  \par\vspace{1mm}
+  計算例では重力加速度を\(g=10.0\ \mathrm{m/s^2}\)と近似します。経過時間\(t\geq0\)は秒、位置\(x\)はメートル、速度\(v\)は\(\mathrm{m/s}\)です。
+  \[x=\frac{1}{2}gt^2,\qquad v=gt\]
+\begin{lstlisting}
+def free_fall(t):
+    g = 10.0
+    x = 0.5 * g * t ** 2
+    v = g * t
+    return x, v
+\end{lstlisting}
+\end{frame}
+
+% 11. タプルを受け取る
+\begin{frame}[t,fragile]{複数の返り値：タプルを受け取る}
+  \setlength{\parskip}{0pt}
+  カンマでまとめた値の組をタプルといいます。\code{return x, v}は、位置と速度をこの順でまとめて返します。
+  \par\vspace{1mm}
+  返した順で複数の変数に受け取ります。変数の数は返す値の数に合わせます。
+\begin{lstlisting}
+state = free_fall(3.0)
+print(state)
+x, v = state
+print(x, v)
+\end{lstlisting}
+  {\small\textcolor{black!60}{出力}}\quad
+  {\codefont\fontsize{16}{18}\selectfont
+    (45.0, 30.0)\\
+    \hspace*{1cm}45.0\quad 30.0\par}
+  \begin{lessonbox}
+    \small \code{x}は\(45.0\ \mathrm{m}\)、\code{v}は\(30.0\ \mathrm{m/s}\)です。
+  \end{lessonbox}
+\end{frame}
+
+% 12. 関数を組み合わせる
+\begin{frame}[t,fragile]{関数を組み合わせる}
+  \setlength{\parskip}{0pt}
+  \code{free\_fall}が返す速度を\code{kinetic\_energy}の引数に渡し、運動エネルギーを計算します。
+\begin{lstlisting}
+m = 2.0
+x, v = free_fall(3.0)
+energy = kinetic_energy(m, v)
+print(energy)
+\end{lstlisting}
+  \result{900.0}
+  \begin{lessonbox}
+    \small 質量\(2.0\ \mathrm{kg}\)、落下開始から\(3.0\ \mathrm{s}\)後の運動エネルギーは\(900.0\ \mathrm{J}\)です。
+  \end{lessonbox}
+\end{frame}
+
+% 13. 簡単な入力で結果を確かめる
+\begin{frame}[t,fragile]{計算結果を確かめる}
+  \setlength{\parskip}{0pt}
+  実行前に、簡単な入力で結果を予想します。
+\begin{lstlisting}
+print(kinetic_energy(2.0, 0.0))
+print(free_fall(0.0))
+\end{lstlisting}
+  \result{0.0}
+  \result{(0.0, 0.0)}
+  \small 静止していれば運動エネルギーは0です。落下開始時\(t=0\)の位置と速度も0です。
+  \par\vspace{2mm}
+  \textbf{短い実習}　基準を\(m=2.0\ \mathrm{kg},\ v=3.0\ \mathrm{m/s}\)とします。質量だけを2倍、速度だけを2倍にした場合のエネルギーを別々に計算し、基準の何倍か説明しましょう。
+\end{frame}
+
+% 14. 漸化式を反復計算する
+\begin{frame}[t,fragile]{関数の活用：漸化式}
+  \setlength{\parskip}{0pt}
+  漸化式 \(a_1=1,\quad a_{n+1}=2a_n+3\) の一般項は
+  \(a_n=4\cdot2^{n-1}-3\) です。\(a_{10}\)を求めます。
+\begin{lstlisting}
+def next_term(a):
+    return 2 * a + 3
+
+a = 1
+for _ in range(9):
+    a = next_term(a)
+
+print(a)
+\end{lstlisting}
+  \result{2045}
+\end{frame}
+
+% 15. ユークリッドの互除法をwhile文で書く
+\begin{frame}[t,fragile]{最大公約数：ループ版}
+  \setlength{\parskip}{0pt}
+  \begin{columns}[T,onlytextwidth]
+    \begin{column}{.49\textwidth}
+\begin{lstlisting}
+def gcd(n, m):
+    while m != 0:
+        r = n % m
+        n = m
+        m = r
+    return n
+\end{lstlisting}
+    \end{column}
+    \begin{column}{.48\textwidth}
+      \small
+      ユークリッドの互除法：\\
+      正の整数\(n,m\)に対し、\\
+      余り\(r=n\bmod m\)を計算し、\\
+      \((n,m)\)を\((m,r)\)に更新。\\
+      \(m=0\)になるまで繰り返し、\\
+      最後の\(n\)が最大公約数です。
+    \end{column}
+  \end{columns}
+\begin{lstlisting}[aboveskip=1mm,belowskip=0mm]
+print(gcd(120, 12))
+\end{lstlisting}
+  \result{12}
+\end{frame}
+
+% 16. 原資料の例題と2問。演習の答えは載せない。
+\begin{frame}[t,fragile]{実習タイム}
+  \setlength{\parskip}{0pt}
+  \textbf{例題}　関数を使って次の値を求めましょう。
+  \[\displaystyle \sum_{n=1}^{10} a_n,\qquad a_n=n^2+4n+5\]
+  \vspace{-2mm}
+  \begin{enumerate}
+    \setlength{\itemsep}{2mm}
+    \item \textbf{フィボナッチ数列}の第10項を、関数を使って求めましょう。\\
+      \(F_1=F_2=1,\quad F_{n+2}=F_{n+1}+F_n\)
+    \item 引数\(n\)が素数かどうか判定する関数を作りましょう。
+  \end{enumerate}
+  \vspace{1mm}
+  \small 素数判定のヒント：\code{math.sqrt(n)}で平方根、\code{math.floor(x)}で\(\lfloor x\rfloor\)を計算できます。
+\begin{lstlisting}[aboveskip=1mm,belowskip=0mm]
+import math
+\end{lstlisting}
+\end{frame}
+
+% 17. 発展：再帰関数
+\begin{frame}[t,fragile]{発展：最大公約数（再帰版）}
+  \setlength{\parskip}{0pt}
+  ループ版と同じ処理を、関数が自分自身を呼び出す再帰で書けます。
+\begin{lstlisting}
+def gcd_recursive(n, m):
+    if m == 0:
+        return n
+    return gcd_recursive(m, n % m)
+
+print(gcd_recursive(120, 12))
+\end{lstlisting}
+  \result{12}
+  \begin{lessonbox}
+    \small \code{m == 0}が再帰の終了条件です。そうでなければ、次の組\code{(m, n \% m)}を計算します。
+  \end{lessonbox}
+\end{frame}
+
+\end{document}
