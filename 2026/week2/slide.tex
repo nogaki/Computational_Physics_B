@@ -483,22 +483,27 @@ for i in range(10):
 \end{frame}
 
 % Source 17: keep the four original exercises and move the range practice here.
-% Fibonacci indexing is made explicit; no exercise answers are supplied.
+% Fibonacci indexing is explicit; expected values let students check their code.
 \begin{frame}[t]{実習タイム}
   \setlength{\parskip}{0pt}
   新しいセルに自分のコードを書いて、順に試しましょう。
   \par\vspace{0mm}
   \begin{itemize}
     \setlength{\itemsep}{0.5mm}
-    \item \code{range}を使い、10から1へ逆順に表示する
-    \item \(\displaystyle \sum_{i=0}^{10}2^i\)を求める\\
+    \item \code{range}を使い、10から1へ逆順に表示する\\
+      {\small\textcolor{courseblue}{答え：\code{10, 9, 8, 7, 6, 5, 4, 3, 2, 1}}}
+    \item \(\sum_{i=0}^{10}2^i\)を求める\quad
+      \textcolor{courseblue}{答え：\(2047\)}\\
       {\small ヒント：累乗は\code{2 ** i}。}
     \item 1から100までの3の倍数の総和を求める\\
-      {\small \code{for}文と\code{if}文を組み合わせましょう。}
+      {\small \code{for}文と\code{if}文を組み合わせましょう。\quad
+        \textcolor{courseblue}{答え：\(1683\)}}
     \item 1から100で、3の倍数を\(m\)個、5の倍数を\(n\)個と\\
-      するとき、\(m+n\)を求める\\
+      するとき、\(m+n\)を求める\quad
+      \textcolor{courseblue}{答え：\(33+20=53\)}\\
       {\small 15の倍数は、それぞれの個数に含めます。}
-    \item フィボナッチ数列の第10項を求める\\
+    \item フィボナッチ数列の第10項を求める\quad
+      \textcolor{courseblue}{答え：\(55\)}\\
       {\small \(F_1=F_2=1,\quad F_k=F_{k-1}+F_{k-2}\quad(k\geq3)\)}
   \end{itemize}
 \end{frame}

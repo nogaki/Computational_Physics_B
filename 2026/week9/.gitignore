@@ -1,0 +1,12 @@
+# Beamer build intermediates
+.beamer-build/
+slide.aux
+slide.fdb_latexmk
+slide.fls
+slide.log
+slide.nav
+slide.out
+slide.snm
+slide.synctex.gz
+slide.toc
+slide.vrb
