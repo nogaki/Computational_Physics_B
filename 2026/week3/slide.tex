@@ -228,7 +228,7 @@ print(sum_all(l, m, n))
 \end{lstlisting}
   \result{10}
   \vspace{1mm}
-  \small 関数内で作った\code{tmp}は外から使えません。\code{print(tmp)}を実行すると、意図的に\code{NameError}になります。
+  \small 関数内で作った\code{tmp}は外から使えません。関数の外で\code{print(tmp)}を実行すると、\code{NameError}が発生します。
 \end{frame}
 
 % 9. 引数と物理パラメータ
@@ -365,26 +365,50 @@ print(gcd(120, 12))
   \result{12}
 \end{frame}
 
-% 16. 原資料の例題と2問。演習の答えは載せない。
-\begin{frame}[t,fragile]{実習タイム}
+% 16. 関数の基本：数列の和、引数とreturn、forとif。
+\begin{frame}[t]{実習タイム（1）：関数の基本}
   \setlength{\parskip}{0pt}
-  \textbf{例題}　関数を使って次の値を求めましょう。
-  \[\displaystyle \sum_{n=1}^{10} a_n,\qquad a_n=n^2+4n+5\]
-  \vspace{-2mm}
+  \small
   \begin{enumerate}
+    \setlength{\itemsep}{1mm}
+    \item \textbf{数列の和}　関数を使って次の値を求めましょう。
+      \[\sum_{n=1}^{10} a_n,\qquad a_n=n^2+4n+5\tag*{\textbf{答え：655}}\]
+    \item \textbf{平均値}　3つの実数を受け取り、その平均を返す\code{average(a,b,c)}を作りましょう。\\
+      \code{average(2.0,4.0,6.0)}と\code{average(1.0,2.0,4.0)}で確かめます。
+    \item \textbf{偶数の和}　正の整数\(n\)に対し、1から\(n\)までの偶数の和を返す\code{sum\_even(n)}を作りましょう。\code{for}文と\code{if}文を使い、\(n=7\)と\(n=10\)で確かめます。
+  \end{enumerate}
+\end{frame}
+
+% 17. 複数の返り値と既習関数の組み合わせ。
+\begin{frame}[t]{実習タイム（2）：返り値と応用}
+  \setlength{\parskip}{0pt}
+  \small
+  \begin{enumerate}
+    \setcounter{enumi}{3}
+    \setlength{\itemsep}{4mm}
+    \item \textbf{商と余り}　正の整数\(a,b\)を受け取り、商と余りをタプルで返す\code{quotient\_remainder(a,b)}を作りましょう。返り値を\code{q}と\code{r}に受け取り、\code{quotient\_remainder(17,5)}と\code{quotient\_remainder(20,4)}で確かめます。
+    \item \textbf{落下中の運動エネルギー}　質量\(m>0\) kgの物体を静止状態から自由落下させます。\code{free\_fall(t)}と\code{kinetic\_energy(m,v)}を使い、経過時間\(t\geq0\) sでの運動エネルギー [J] を返す\code{fall\_energy(m,t)}を作りましょう。\code{fall\_energy(2.0,0.0)}と\code{fall\_energy(2.0,2.0)}で確かめます。
+  \end{enumerate}
+\end{frame}
+
+% 18. 既存の数列と素数判定の演習。
+\begin{frame}[t,fragile]{実習タイム（3）：数列と判定}
+  \setlength{\parskip}{0pt}
+  \small
+  \begin{enumerate}
+    \setcounter{enumi}{5}
     \setlength{\itemsep}{2mm}
-    \item \textbf{フィボナッチ数列}の第10項を、関数を使って求めましょう。\\
-      \(F_1=F_2=1,\quad F_{n+2}=F_{n+1}+F_n\)
-    \item 引数\(n\)が素数かどうか判定する関数を作りましょう。
+    \item \textbf{フィボナッチ数列}　関数\code{fibonacci(n)}を作り、第10項を求めましょう。\(n\geq1\)とし、\(F_1=F_2=1,\quad F_{n+2}=F_{n+1}+F_n\)です。\(n=1,2,6,10\)で確かめます。
+    \item \textbf{素数判定}　整数\(n\)が素数か判定する\code{is\_prime(n)}を作りましょう。\(n<2\)は素数ではありません。\code{is\_prime(1)}、\code{is\_prime(2)}、\code{is\_prime(13)}、\code{is\_prime(15)}で確かめます。
   \end{enumerate}
   \vspace{1mm}
-  \small 素数判定のヒント：\code{math.sqrt(n)}で平方根、\code{math.floor(x)}で\(\lfloor x\rfloor\)を計算できます。
+  素数判定のヒント：\code{math.sqrt(n)}で平方根、\code{math.floor(x)}で\(\lfloor x\rfloor\)を計算できます。
 \begin{lstlisting}[aboveskip=1mm,belowskip=0mm]
 import math
 \end{lstlisting}
 \end{frame}
 
-% 17. 発展：再帰関数
+% 19. 発展：再帰関数
 \begin{frame}[t,fragile]{発展：最大公約数（再帰版）}
   \setlength{\parskip}{0pt}
   ループ版と同じ処理を、関数が自分自身を呼び出す再帰で書けます。

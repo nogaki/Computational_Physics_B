@@ -5,7 +5,7 @@
 | 年度 | 内容 |
 |---|---|
 | [2025](2025/) | `main`から引き継いだ講義資料・ノートブック・レポート課題 |
-| [2026](2026/) | 2026年度の編集済み資料。現在は第1回〜第4回を掲載 |
+| [2026](2026/) | 第1回〜第14回のLaTeXスライド・PDF・実習ノートブック |
 
 ```text
 2025/
@@ -13,7 +13,7 @@
   report1/
   report2/
 2026/
-  week1/ ～ week4/
+  week1/ ～ week14/
 templates/
   beamer/
 ```
@@ -21,28 +21,7 @@ templates/
 2025年度の元資料は内容を保持し、2026年度の作業は`2026/weekN/`で進めます。
 このリポジトリの標準ブランチ名は`main`です。
 
-2026年度の第1回資料：
-
-- [スライドPDF](2026/week1/slide.pdf)
-- [実習ノートブック](2026/week1/week1.ipynb)
-- [Beamer版の編集・コンパイル方法](2026/week1/README-beamer.md)
-
-2026年度の第2回資料：
-
-- [スライドPDF](2026/week2/slide.pdf)
-- [実習ノートブック](2026/week2/week2.ipynb)
-- [Beamer版の編集・コンパイル方法](2026/week2/README-beamer.md)
-
-2026年度の第3回資料：
-
-- [スライドPDF](2026/week3/slide.pdf)
-- [実習ノートブック](2026/week3/week3.ipynb)
-- [Beamer版の編集・コンパイル方法](2026/week3/README-beamer.md)
-
-2026年度の第4回資料：
-
-- [スライドPDF](2026/week4/slide.pdf)
-- [実習ノートブック](2026/week4/week4.ipynb)
-- [Beamer版の編集・コンパイル方法](2026/week4/README-beamer.md)
+[2026年度の教材一覧](2026/README.md)から、各回のPDF・実習ノートブック・編集方法を開けます。
+編集用のLaTeXソースは各週の`slide.tex`です。第11回と第13回は、入口のノートブックから題材別の実習へ進みます。
 
 年度共通のデザインは[Beamerテンプレート](templates/beamer/README.md)で管理します。
