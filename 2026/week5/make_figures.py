@@ -7,7 +7,6 @@ import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import numpy as np
-import pandas as pd
 from scipy.special import jv
 
 
@@ -87,17 +86,50 @@ def bad_styles():
 
 
 def scatter_example():
-    rng = np.random.default_rng(2026)
-    x = rng.normal(size=250)
-    y = 1.4 * x + 0.65 * rng.normal(size=x.size)
+    force = np.array([0.5, 1.0, 1.5, 2.0, 2.5])
+    extension = np.array([1.0, 2.1, 2.9, 4.2, 5.0])
     fig, ax = plt.subplots(figsize=(6.4, 4.2))
-    ax.scatter(x, y, s=22, alpha=0.65, color="C0")
-    ax.set(title="Synthetic correlated data (simulation)", xlabel="x [arbitrary units]", ylabel="y [arbitrary units]")
+    ax.scatter(force, extension, color="C0")
+    ax.set(xlabel="Force [N]", ylabel="Extension [cm]")
     ax.grid(alpha=0.25)
     return fig
 
 
+def save_gaussian_plots():
+    x = np.linspace(-1, 1, 101)
+    y = np.linspace(-1, 1, 81)
+    X, Y = np.meshgrid(x, y)
+    Z = np.exp(-((X - 0.3)**2 + Y**2))
+    ticks = [-1, -0.5, 0, 0.5, 1]
+    axes = dict(xlabel="x", ylabel="y", aspect="equal", xticks=ticks, yticks=ticks,
+                xlim=(-1, 1), ylim=(-1, 1))
+
+    fig, ax = plt.subplots(figsize=(4.5, 4.5))
+    lines = ax.contour(X, Y, Z, levels=[0.6, 0.7, 0.8, 0.9], colors="C0")
+    ax.clabel(lines, fontsize=13)
+    ax.set(**axes)
+    save(fig, "gaussian_contour.pdf")
+
+    fig, ax = plt.subplots(figsize=(5.2, 4.5))
+    bands = [0, 0.6, 0.7, 0.8, 0.9, 1]
+    filled = ax.contourf(X, Y, Z, levels=bands)
+    fig.colorbar(filled, ax=ax, label="f(x, y)", spacing="proportional")
+    ax.set(**axes)
+    save(fig, "gaussian_contourf.pdf")
+
+    dx = x[1] - x[0]
+    dy = y[1] - y[0]
+    extent = (x[0] - dx / 2, x[-1] + dx / 2, y[0] - dy / 2, y[-1] + dy / 2)
+    fig, ax = plt.subplots(figsize=(5.2, 4.5))
+    image = ax.imshow(Z, origin="lower", extent=extent, vmin=0, vmax=1, interpolation="nearest")
+    fig.colorbar(image, ax=ax, label="f(x, y)")
+    ax.set(**axes)
+    save(fig, "gaussian_density.pdf")
+
+
 def load_pulsars():
+    import pandas as pd
+
     raw = pd.read_csv(HERE / "pulsar.csv")
     values = raw[["P0", "P1"]].apply(pd.to_numeric, errors="coerce").to_numpy()
     valid = np.isfinite(values).all(axis=1) & (values > 0).all(axis=1)
@@ -241,6 +273,7 @@ def generate_all():
     save(bad_labels(), "bad_labels.pdf")
     save(bad_styles(), "bad_styles.pdf")
     save(scatter_example(), "scatter_example.pdf")
+    save_gaussian_plots()
 
     data, total = load_pulsars()
     assert len(data) > 0 and len(data) <= total
