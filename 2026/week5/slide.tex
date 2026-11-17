@@ -91,7 +91,6 @@
     \item Google Colab：{\small\url{https://colab.research.google.com/?hl=ja}}
     \item 講義資料（GitHub）：{\small\url{https://github.com/nogaki/Computational_Physics_B}}
     \item 今週のノートブック：\code{2026/week5/week5.ipynb}
-    \item 今週のデータ：\code{2026/week5/pulsar.csv}
   \end{itemize}
 \end{frame}
 
@@ -111,24 +110,7 @@
   \end{lessonbox}
 \end{frame}
 
-% 4. CSVデータをアップロード
-\begin{frame}[t,fragile]{CSVデータをアップロード}
-  \setlength{\parskip}{0pt}
-  \begin{enumerate}
-    \setlength{\itemsep}{3mm}
-    \item GitHubで\code{2026/week5/pulsar.csv}を開き、ダウンロードします。
-    \item Colab左側の「ファイル」から\code{pulsar.csv}をアップロードします。
-  \end{enumerate}
-  \vspace{2mm}
-  \small CSVは表のデータです。\code{pandas}を使って読み込みます。
-\begin{lstlisting}
-import pandas as pd
-df = pd.read_csv("pulsar.csv")
-\end{lstlisting}
-  \small ローカルでは、ノートブックとCSVを同じフォルダに置きます。
-\end{frame}
-
-% 5. 前回への補足
+% 前回への補足
 \begin{frame}[t,fragile]{前回への補足：配列の各要素を処理する}
   \setlength{\parskip}{0pt}
   PythonのリストやNumPy配列に\code{for}文を使うと、要素を順に取り出せます。
@@ -146,10 +128,10 @@ for value in a:
 \begin{frame}[t]{今回の内容：データの可視化}
   \begin{itemize}
     \setlength{\itemsep}{3mm}
-    \item matplotlibでグラフを描く
-    \item 折れ線グラフで連続的な変化を見る
-    \item 散布図でデータの分布や相関を見る
-    \item 等高線・密度・3次元プロットで二変数関数を見る
+    \item 配列の値を折れ線グラフにし、PDFに保存する
+    \item ばねに加えた力と伸びを散布図にする
+    \item 等高線・塗りつぶし等高線・密度プロットで二変数関数を見る
+    \item 式を変えて等高線を描き直す
   \end{itemize}
   \vfill
   {\footnotesize
@@ -289,19 +271,116 @@ plt.ylabel("cos(x)")
   \raggedright\small 色だけに頼らず、線種やマーカーも使って区別します。
 \end{frame}
 
-% 16. 散布図
-\begin{frame}[t,fragile]{散布図}
+\begin{frame}[t,fragile]{散布図：ばねに加えた力と伸び}
   \setlength{\parskip}{0pt}
-  \small 各組\((x_i,y_i)\)を点で示し、点の分布や相関を調べます。\\
-  ここではノートブックで作る模擬データを使います。
+  \small 同じ列の力と伸びが散布図の1点です（仮想測定値5組）。
+  \par\vspace{1mm}
+  {\centering
+    \begin{tabular}{@{}l*{5}{r}@{}}
+      \code{force}（力 [N]）        & 0.5 & 1.0 & 1.5 & 2.0 & 2.5 \\
+      \code{extension}（伸び [cm]） & 1.0 & 2.1 & 2.9 & 4.2 & 5.0
+    \end{tabular}\par}
+  \vspace{2mm}
 \begin{lstlisting}
-plt.scatter(x_simulated, y_simulated)
+plt.scatter(force, extension)
 \end{lstlisting}
-  \centering\includegraphics[height=44mm]{scatter_example.pdf}\par
+  \centering\includegraphics[height=37mm]{scatter_example.pdf}\par
+\end{frame}
+
+\begin{frame}[t,fragile]{二変数関数：座標を格子に並べる}
+  \small 横に3個の \(x\) 座標、縦に2個の \(y\) 座標を並べます。各ますに一つの座標の組ができます。
+\begin{lstlisting}
+x_small = np.array([-1, 0, 1])
+y_small = np.array([0, 1])
+X_small, Y_small = np.meshgrid(
+    x_small, y_small)
+\end{lstlisting}
+  \[
+    X_{\mathrm{small}}=\begin{pmatrix}-1&0&1\\-1&0&1\end{pmatrix},\qquad
+    Y_{\mathrm{small}}=\begin{pmatrix}0&0&0\\1&1&1\end{pmatrix}.
+  \]
+  \small 2行3列の配列です。たとえば、2行目の右端が格子点 \((1,1)\) に対応します。
+\end{frame}
+
+\begin{frame}[t,fragile]{ガウス型関数を格子上で計算する}
+  \small \(f(x,y)=\exp[-((x-0.3)^2+y^2)]\) を計算します。\(y=0\) では第4回で扱った関数になります。
+\begin{lstlisting}
+x = np.linspace(-1, 1, 101)
+y = np.linspace(-1, 1, 81)
+X, Y = np.meshgrid(x, y)
+Z = np.exp(-((X - 0.3)**2 + Y**2))
+\end{lstlisting}
+  \small \code{Z}は\code{X}、\code{Y}と同じ81行101列です。同じ位置の要素が、格子点の座標とその点での関数値に対応します。
+\end{frame}
+
+\begin{frame}[t,fragile]{ガウス型関数の等高線}
+  \setlength{\parskip}{0pt}
+  \small 各線は \(f(x,y)\) が一定の場所を示します。\code{levels}には線を描きたい値を指定します。
+\begin{lstlisting}
+levels = [0.6, 0.7, 0.8, 0.9]
+plt.contour(X, Y, Z, levels=levels)
+\end{lstlisting}
+  \centering\includegraphics[height=41mm]{gaussian_contour.pdf}\par
+\end{frame}
+
+\begin{frame}[t,fragile]{ガウス型関数の塗りつぶし等高線}
+  \setlength{\parskip}{0pt}
+  \small 等高線で区切られた値の範囲を、色で塗り分けます。
+\begin{lstlisting}
+bands = [0, 0.6, 0.7, 0.8, 0.9, 1]
+plt.contourf(X, Y, Z, levels=bands)
+plt.colorbar(spacing="proportional")
+\end{lstlisting}
+  \centering\includegraphics[height=40mm]{gaussian_contourf.pdf}\par
+\end{frame}
+
+\begin{frame}[t,fragile]{ガウス型関数の密度プロット}
+  \setlength{\parskip}{0pt}
+  \small \code{Z}の各要素を画像の1マスの色で示します。\code{extent}は画像の四辺の座標です。
+\begin{lstlisting}
+plt.imshow(Z, origin="lower",
+           extent=extent, vmin=0, vmax=1)
+\end{lstlisting}
+  \centering\includegraphics[height=41mm]{gaussian_density.pdf}\par
+\end{frame}
+
+\begin{frame}[t]{実習タイム}
+  \setlength{\parskip}{0pt}
+  ノートブックの実習セルにコードを書きましょう。
+  \begin{enumerate}
+    \setlength{\itemsep}{2mm}
+    \item \textbf{点の数とピークの見え方}\\
+      {\small 第4回のガウス型関数の21点と、\code{[::4]}で間引いた6点を、マーカー付きの折れ線で重ねます。軸ラベルと凡例を付けてPDFに保存し、各系列で最大値をとる \(x\) を比べてください。}
+    \item \textbf{ばねの伸びを比例関係と比べる}\\
+      {\small 散布図に直線 \(d=2.0F\) を重ねます。直線から縦に最も離れた点は、力 \(F\) が何 N のときですか。}
+    \item \textbf{式を変えて等高線を描き直す}\\
+      {\small 山の中心を \((0.3,0)\) から \((-0.3,0.5)\) に移します。同じ格子と等高線の値で描き直し、軸ラベルを付けます。値が \(0.9\) の線はどこに移りましたか。}
+  \end{enumerate}
+\end{frame}
+
+\begin{frame}[t]{実習タイム（続き）}
+  \setlength{\parskip}{0pt}
+  \begin{enumerate}
+    \setcounter{enumi}{3}
+    \setlength{\itemsep}{4mm}
+    \item \textbf{5点に最もよく合う比例直線を選ぶ}\\
+      {\small 実習2の5点について、\(d=aF\) の3候補（\(a=1.9,\,2.0,\,2.1\)）を比べます。各点で測定値から直線の予測値を引きます。例えば \(F=1.0\) N、\(a=2.0\) なら差は \(2.1-2.0\times1.0=+0.1\) cm です。力を横軸、差を縦軸にして3系列を凡例付きで重ね、差の絶対値の平均が最小の直線を選んでください。}
+    \item \textbf{等高線と密度プロットで山の幅を比べる}\\
+      {\small \(f_a(x,y)=\exp[-((x-0.3)^2+ay^2)]\) を \(a=1,\,4\) で計算します。軸と色の範囲をそろえて、塗りつぶし等高線と密度プロットを描きます。\(x=0.3\) で \(f_a\geq0.8\) となる格子点の \(y\) の最大値と最小値の差を幅とし、2例で比べてください。}
+  \end{enumerate}
+\end{frame}
+
+\begin{frame}[t]{付録と発展課題}
+  \begin{itemize}
+    \setlength{\itemsep}{2mm}
+    \item 付録A　実測データの散布図（パルサー、粒子識別）
+    \item 付録B　二変数関数の応用（双極子、密度表示、3次元表示）
+    \item 発展課題　Bessel関数とフラクタル
+  \end{itemize}
 \end{frame}
 
 % 17. 粒子識別
-\begin{frame}[t]{散布図の例：粒子の識別}
+\begin{frame}[t]{付録A：散布図による粒子の識別}
   \setlength{\parskip}{0pt}
   \small 運動量と物質中でのエネルギー損失を組み合わせ、粒子の種類を識別します。
   \par\vspace{1mm}
@@ -311,8 +390,18 @@ plt.scatter(x_simulated, y_simulated)
   実験：ALICE Collaboration（\href{https://cds.cern.ch/record/2047855}{CERN, 2015}）。出典は元図にも表示。}
 \end{frame}
 
+\begin{frame}[t,fragile]{付録A：パルサーのCSVを読み込む}
+  \small ColabではGitHubの\code{2026/week5/pulsar.csv}をダウンロードし、左側の「ファイル」からアップロードします。ローカルではノートブックと同じフォルダに置きます。
+  \par\vspace{2mm}
+  CSVは表のデータです。\code{pandas}を使って読み込みます。
+\begin{lstlisting}
+import pandas as pd
+df = pd.read_csv("pulsar.csv")
+\end{lstlisting}
+\end{frame}
+
 % 18. パルサーの周期データ
-\begin{frame}[t,fragile]{パルサーの周期と周期変化を描く}
+\begin{frame}[t,fragile]{付録A：パルサーの周期と周期変化}
   \setlength{\parskip}{0pt}
   \small \code{P0}は周期\(P\)（s）、\code{P1}は周期変化率\(\dot P\)（s/s）です。\code{df}は読み込んだCSVの表です。
 \begin{lstlisting}
@@ -328,7 +417,7 @@ plt.yscale("log")
 \end{frame}
 
 % 19. パルサーのP-Pdot図
-\begin{frame}[t]{散布図の例：パルサーの周期と周期変化}
+\begin{frame}[t]{付録A：パルサーの両対数散布図}
   \setlength{\parskip}{0pt}
   \centering\includegraphics[height=46mm]{pulsar.pdf}\par
   \raggedright{\fontsize{9}{11}\selectfont
@@ -337,7 +426,7 @@ plt.yscale("log")
 \end{frame}
 
 % 20. 二変数関数の格子
-\begin{frame}[t,fragile]{二変数関数を格子上で計算する}
+\begin{frame}[t,fragile]{付録B：双極子ポテンシャルの格子}
   \setlength{\parskip}{0pt}
   \small 電気双極子の無次元ポテンシャルを例にします。正電荷を\((-2,0)\)、負電荷を\((2,0)\)に置きます。
   \[V_{\rm dip}(x,y)=\frac{1}{\sqrt{(x+2)^2+y^2}}-\frac{1}{\sqrt{(x-2)^2+y^2}}.\]
@@ -352,7 +441,7 @@ X, Y = np.meshgrid(x, y)
 \end{frame}
 
 % 21. 双極子ポテンシャルを計算する
-\begin{frame}[t,fragile]{双極子ポテンシャルを計算する}
+\begin{frame}[t,fragile]{付録B：双極子ポテンシャルを計算する}
   \setlength{\parskip}{0pt}
   \small 電荷の位置で発散するため、各電荷から距離0.25未満を除外します。
 \begin{lstlisting}
@@ -366,7 +455,7 @@ V = 1 / r_plus - 1 / r_minus
 \end{frame}
 
 % 22. 等高線と塗りつぶし等高線
-\begin{frame}[t,fragile]{等高線図と塗りつぶし等高線図}
+\begin{frame}[t,fragile]{付録B：等高線図と塗りつぶし等高線図}
   \setlength{\parskip}{0pt}
   \small \code{contour}は等しい値を線で結び、\code{contourf}は間を塗ります。
 \begin{lstlisting}
@@ -378,7 +467,7 @@ plt.contour(X, Y, V, levels=levels)
 \end{frame}
 
 % 23. 密度プロット
-\begin{frame}[t,fragile]{密度プロット：imshow}
+\begin{frame}[t,fragile]{付録B：密度プロット}
   \setlength{\parskip}{0pt}
 \begin{lstlisting}
 plt.imshow(V, origin="lower",
@@ -400,7 +489,7 @@ plt.colorbar()
 \end{frame}
 
 % 24. 3次元プロット
-\begin{frame}[t,fragile]{3次元プロットの作り方}
+\begin{frame}[t,fragile]{付録B：3次元プロットの作り方}
   \setlength{\parskip}{0pt}
   \small 3次元の座標軸を作り、高さを\(V(x,y)\)として曲面を描きます。
 \begin{lstlisting}
@@ -415,14 +504,14 @@ plt.show()
   \small \code{fig}は図全体、\code{ax}は座標軸です。底面の等高線と視点の設定を含むコードはノートブックにあります。
 \end{frame}
 
-\begin{frame}[t]{3次元プロット：双極子ポテンシャル}
+\begin{frame}[t]{付録B：双極子ポテンシャルの3次元図}
   \setlength{\parskip}{0pt}
   \centering\includegraphics[height=51mm]{dipole_surface.pdf}\par
   \raggedright\small 表示範囲は\(z=-5\)〜5。白い穴は電荷の近傍を除いた部分で、電荷の位置ではポテンシャルが発散します。
 \end{frame}
 
 % 25. Bessel関数の実習
-\begin{frame}[t,fragile]{実習：第一種Bessel関数を描く}
+\begin{frame}[t,fragile]{発展課題：第一種Bessel関数を描く}
   \setlength{\parskip}{0pt}
   \small \(J_v(x)\)を\(v=0,1,2,3\)、\(0\le x\le20\)で描き、PDFに保存します。
 \begin{lstlisting}

@@ -386,11 +386,30 @@ values = samples.tolist()
   \begin{enumerate}
     \setlength{\itemsep}{3mm}
     \item \(0\)〜\(3\)秒の31点で、自由落下の位置・速度と、質量\(2.0\ \mathrm{kg}\)の運動エネルギーを配列で求めましょう。
-    \item 3粒子を90度回転した前後で、原点からの距離の2乗が変わらないか確かめましょう。ヒント：\code{r[:, 0]**2 + r[:, 1]**2}。
+    \item 「行列で全粒子を回転する」（本文13ページ）の例で使った3粒子（回転前の座標は \((1,0),\ (0,2),\ (-1,0)\)）を考えます。
+      回転前の \code{r} と90度回転後の \code{rotated} を使い、原点からの距離の2乗 \(x^2+y^2\) が粒子ごとに等しいか確かめましょう。
+      \par ヒントは \code{r[:, 0]**2 + r[:, 1]**2} です。
     \item \code{samples}の平均と分散を求め、理論値の\(2.0\ \mathrm{s}\)、\(0.01\ \mathrm{s^2}\)と比べましょう。
   \end{enumerate}
   \vfill
   {\small \code{for}文による統計計算と実行時間の比較は、ノートブックの補足・発展課題にあります。}
+\end{frame}
+
+% 17. 関数値を配列に保存して使う
+\begin{frame}[t]{関数値を配列に保存して使う}
+  \setlength{\parskip}{0pt}
+  \small
+  \(f(x)=\exp[-(x-0.3)^2]\) を格子点で評価します。\\
+  座標と関数値は同じ添字で対応します。
+  \begin{enumerate}
+    \setcounter{enumi}{3}
+    \setlength{\itemsep}{3mm}
+    \item \([-1,1]\) の両端を含む等間隔の21点を \code{x\_grid} に入れます。
+      Pythonで関数 \code{f} を定義し、各点での関数値を \code{f\_grid} に保存しましょう。
+      両配列の形状と先頭の値を表示しましょう。
+    \item 両配列を \code{[::4]} で間引きます。元の21点と間引いた6点で、関数値が最大となる点の座標と関数値を配列から求めて比べましょう。
+      \code{np.argmax} は最大値の添字を返します。
+  \end{enumerate}
 \end{frame}
 
 \end{document}
