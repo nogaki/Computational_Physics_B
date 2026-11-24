@@ -468,20 +468,12 @@ print(total)
   \small これは関数や評価点に依存する目安で、普遍的な最適値ではありません。
 \end{frame}
 
-\begin{frame}[t,fragile]{実習タイム：多項式の微分}
+\begin{frame}[t]{実習タイム：多項式の微分}
   \setlength{\parskip}{0pt}
   \vspace*{\fill}
   \begin{enumerate}
     \item $f(x)=x^3-2x+1$の解析解は$f'(x)=3x^2-2$です。
   \end{enumerate}
-\begin{lstlisting}
-def f(x):
-    return x**3 - 2*x + 1
-
-def df_exact(x):
-    return 3*x*x - 2
-\end{lstlisting}
-  \vspace{2mm}
   \begin{itemize}
     \item $x=0.7$で差分近似を計算し、解析解と比べます。
     \item $h$を変え、前進差分・中心差分の誤差を記録します。
@@ -519,42 +511,13 @@ def df_exact(x):
   \end{lessonbox}
 \end{frame}
 
-\begin{frame}[t,fragile]{実習タイム（続き）：丸め誤差の積み重ね}
-  \setlength{\parskip}{0pt}
-  \vspace*{\fill}
+\begin{frame}[t]{実習タイム（続き）：丸め誤差と二階微分}
   \begin{enumerate}
+    \setlength{\itemsep}{4mm}
     \setcounter{enumi}{3}
     \item 0.01の反復加算で、加算回数$n$を$10^4$、$10^5$、$10^6$と変え、$n\times0.01$との差を比べます。
+    \item $f(x)=x^4$の二階微分を中心差分で求め、$x=1$で解析解$f''(x)=12x^2$と比べます。$h=10^{-1},10^{-2},10^{-3},\ldots$と小さくし、誤差がいつ増え始めるかも記録します。
   \end{enumerate}
-\begin{lstlisting}
-n = 10**4
-total = 0.0
-for _ in range(n):
-    total += 0.01
-print(n * 0.01 - total)
-\end{lstlisting}
-  \vspace{1mm}
-  \code{n}を$10^5$、$10^6$に変えて、差の増え方を比べます。
-  \vfill
-\end{frame}
-
-\begin{frame}[t,fragile]{実習タイム（続き）：二階微分の中心差分}
-  \setlength{\parskip}{0pt}
-  \vspace*{\fill}
-  \begin{enumerate}
-    \setcounter{enumi}{4}
-    \item $f(x)=x^4$の二階微分を中心差分で求め、$x=1$で解析解と比べます。
-  \end{enumerate}
-\begin{lstlisting}
-def f(x):
-    return x**4
-
-def ddf_exact(x):
-    return 12 * x**2
-\end{lstlisting}
-  \vspace{1mm}
-  $h=10^{-1},10^{-2},10^{-3},\ldots$と小さくし、誤差がいつ増え始めるかも記録します。
-  \vfill
 \end{frame}
 
 \end{document}
