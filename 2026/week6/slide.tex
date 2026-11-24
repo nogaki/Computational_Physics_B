@@ -5,6 +5,7 @@
 \graphicspath{{figures/}}
 \usepackage{listings}
 \usepackage{upquote}
+\usepackage{tikz}
 \IfFontExistsTF{Consolas}{\newfontfamily\codefont{Consolas}}{\newfontfamily\codefont{Liberation Mono}}
 \definecolor{codevalue}{HTML}{7A3E9D}
 \definecolor{codebuiltin}{HTML}{006DB0}
@@ -104,60 +105,195 @@
 
 \begin{frame}[t]{計算機上の数}
   \begin{itemize}
-    \setlength{\itemsep}{2mm}
-    \item 計算機は、有限個の0と1（bit）で数を表します。
+    \setlength{\itemsep}{1.5mm}
+    \item 計算機は、有限個の0と1（bit）で数を表します。8 bitを1 byteといいます。
     \item Pythonの\code{float}は、通常64 bitの倍精度浮動小数点数です。
-    \item Pythonの整数型は任意精度で、浮動小数点数とは表し方が異なります。
+    \item Pythonの\code{int}は任意精度の整数で、\code{float}とは表し方が異なります。
   \end{itemize}
   \vspace{2mm}
-  2進数では、各桁が $2$ のべきの重みを持ちます。
+  \begin{center}
+  \begin{tikzpicture}[x=1mm,y=1mm]
+    \foreach \i/\b in {0/0,1/1,2/0,3/1,4/1,5/0,6/0,7/1}{
+      \fill[courseblue!8] (7*\i,0) rectangle (7*\i+6,5);
+      \draw[courseblue!45,line width=.4pt] (7*\i,0) rectangle (7*\i+6,5);
+      \node[font=\codefont] at (7*\i+3,2.5) {\b};
+    }
+    \draw[courseblue!70,line width=.3pt] (0,-1.3) -- (0,-2) -- (55,-2) -- (55,-1.3);
+    \node[anchor=north,font=\small] at (27.5,-2.2) {1 byte = 8 bit};
+  \end{tikzpicture}
+  \end{center}
+  \vfill
+  {\small 8 bitは例示用で、Pythonの\code{int}の上限ではありません。}
+\end{frame}
+
+\begin{frame}[t]{2進数の桁の重み}
+  0以上の整数は、0と1だけを並べた2進数で表します。各桁は $2$ のべきの重みを持ちます。
+  \begin{center}
+  \begin{tikzpicture}[x=1mm,y=1mm]
+    \foreach \i/\b/\k in {0/1/3,1/1/2,2/0/1,3/1/0}{
+      \fill[courseblue!8] (17*\i,0) rectangle (17*\i+15.4,10);
+      \draw[courseblue!45,line width=.4pt] (17*\i,0) rectangle (17*\i+15.4,10);
+      \node[font=\codefont\Large] at (17*\i+7.7,5.2) {\b};
+      \node[font=\small] at (17*\i+7.7,-1.9) {$2^{\k}$の桁};
+    }
+  \end{tikzpicture}
+  \end{center}
+  \vspace{-2mm}
   \[
-    (1101)_2=1\cdot2^3+1\cdot2^2+0\cdot2^1+1\cdot2^0=13
+    \begin{aligned}
+      (1101)_2 &= 1\cdot2^3+1\cdot2^2+0\cdot2^1+1\cdot2^0 \\
+      &= 8+4+0+1=13
+    \end{aligned}
   \]
-  \small 8 bitでは1 byteです。整数の格納方法には符号付き表現などがあります。
+  \vfill
+  \begin{lessonbox}
+    では、負の数はどう表せばよいでしょうか。
+  \end{lessonbox}
 \end{frame}
 
 \begin{frame}[t]{負の整数：2の補数}
+  \begingroup
   \setlength{\parskip}{1mm}
-  8 bitの2の補数表現では、最上位bitの重みが負になります。
+  \setlength{\abovedisplayskip}{4pt}
+  \setlength{\belowdisplayskip}{4pt}
+  負の数も同じ足し算で扱うため、$-5$ は $5$ と足して $0$ になるビット列で表します。
+  8~bitでは $256-5=251$ を足します。
   \[
-    (b_7b_6\cdots b_0)_2=-b_7 2^7+\sum_{k=0}^{6} b_k2^k
+    \renewcommand{\arraystretch}{1.35}
+    \begin{array}{r@{\hspace{2.5mm}}r@{\hspace{2.5mm}}r}
+      & & \text{\codefont\large 00000101} \\
+      & \text{\codefont\large $+$} & \text{\codefont\large 11111011} \\ \cline{3-3}
+      \textcolor{red!70!black}{\text{\codefont\large 1}} & & \text{\codefont\large \underline{00000000}}
+    \end{array}
   \]
-  \begin{columns}[c,onlytextwidth]
-    \begin{column}{.47\textwidth}
-      \centering
-      \code{00000101}$_2=5$
-    \end{column}
-    \begin{column}{.47\textwidth}
-      \centering
-      \code{11111011}$_2=-5$
-    \end{column}
-  \end{columns}
-  \vspace{3mm}
+  \begin{center}
+    9桁目への繰り上がり $1$ は捨て、\underline{下位8~bit}が残ります。
+  \end{center}
+  \vfill
   \begin{lessonbox}
-    $M$ bitの2の補数で表せる範囲は $-2^{M-1}$ から $2^{M-1}-1$ です。
+    \code{11111011} は、符号なしでは $251$、2の補数では $-5$ を表します。
   \end{lessonbox}
+  \endgroup
+\end{frame}
+
+\begin{frame}[t]{2の補数の値の読み方}
+  \begingroup
+  \setlength{\parskip}{0.2mm}
+  \setlength{\abovedisplayskip}{2pt}
+  \setlength{\belowdisplayskip}{2pt}
+  前のページの \code{11111011} は、符号なしでは $251$、2の補数では $-5$ でした。
+  $251-256=-5$ です。8~bitの2の補数では、先頭が $1$ なら負と読み、
+  符号なしの値から $256$ を引きます。
+  \begin{center}
+  \begin{tikzpicture}[x=1mm,y=1mm]
+    \foreach \i/\b/\w in {0/1/-128,1/1/64,2/1/32,3/1/16,4/1/8,5/0/4,6/1/2,7/1/1}{
+      \fill[courseblue!8] (12*\i,0) rectangle (12*\i+11,6);
+      \draw[courseblue!45,line width=.4pt] (12*\i,0) rectangle (12*\i+11,6);
+      \node[font=\codefont\large] at (12*\i+5.5,3) {\b};
+      \node[font=\scriptsize] at (12*\i+5.5,-1.1) {\w};
+    }
+  \end{tikzpicture}
+  \end{center}
+  \vspace{-1mm}
+  {\small 最上位bitの重みは $128-256=-128$ です。}\par\noindent
+  2の補数としての値は、先頭bitを $b_7$ として
+  \[
+    \mathrm{val}(b_7b_6\cdots b_0)=-b_7 2^7+\sum_{k=0}^{6} b_k2^k
+  \]
+  \vfill
+  \begin{lessonbox}
+    $M$ bitの2の補数の範囲は $-2^{M-1}$ から $2^{M-1}-1$ です。
+  \end{lessonbox}
+  \endgroup
 \end{frame}
 
 \begin{frame}[t]{浮動小数点数}
   \begin{itemize}
-    \setlength{\itemsep}{2mm}
+    \setlength{\itemsep}{1.5mm}
     \item IEEE 754 binary64は符号1 bit・指数部11 bit・格納仮数部52 bitです。
     \item 正規化数では暗黙の先頭1 bitを含め、有効桁は53 bitです。
-    \item 多くの実数は有限桁に丸めて保存します。
   \end{itemize}
+  \vspace{-2mm}
+  \begin{center}
+  \begin{tikzpicture}[x=1mm,y=1mm]
+    \fill[courseblue] (0,0) rectangle (1.5,5);
+    \fill[courseblue!55] (1.5,0) rectangle (18,5);
+    \fill[courseblue!20] (18,0) rectangle (96,5);
+    \draw[white,line width=.7pt] (1.5,0)--(1.5,5) (18,0)--(18,5);
+    \draw[courseblue!60,line width=.4pt] (0,0) rectangle (96,5);
+    \node[anchor=north west,font=\scriptsize] at (0,-0.8) {符号};
+    \node[anchor=north west,font=\scriptsize] at (0,-4.2) {1 bit};
+    \node[anchor=north west,font=\scriptsize] at (11,-0.8) {指数部};
+    \node[anchor=north west,font=\scriptsize] at (11,-4.2) {11 bit};
+    \node[anchor=north,font=\scriptsize] at (57,-0.8) {仮数部（格納）};
+    \node[anchor=north,font=\scriptsize] at (57,-4.2) {52 bit};
+    \draw[courseblue!70,line width=.3pt]
+      (18.4,6.6) -- (18.4,7.2) -- (95.6,7.2) -- (95.6,6.6);
+    \node[anchor=south,font=\scriptsize] at (57,7.4) {正規化数では先頭1を補い、有効53 bit};
+  \end{tikzpicture}
+  \end{center}
+  \vfill
+  \begin{lessonbox}
+    では、指数部と仮数部は何を表しているのでしょうか。
+  \end{lessonbox}
+\end{frame}
+
+\begin{frame}[t]{指数部と仮数部が表すもの}
+  \begingroup
+  \setlength{\parskip}{0.5mm}
+  \setlength{\abovedisplayskip}{3pt}
+  \setlength{\belowdisplayskip}{3pt}
+  符号ビットを $s$ とすると、正規化数の値は次の形で読みます。
   \[
-    \pm (0.b_1b_2\cdots b_p)_2\times 2^e
+    \text{値}=(-1)^{s}\times(1.\text{仮数部のビット列})_2\times 2^{e}
   \]
-  たとえば10進数の $0.1$ は2進数で循環します。
-  \[
-    0.1=(0.0001100110011\ldots)_2
-  \]
+  \begin{itemize}
+    \setlength{\itemsep}{0.3mm}
+    \item \textbf{指数部}：$2^{e}$ 倍、つまり小数点を動かす桁数を決めます。
+    \item \textbf{仮数部}：先頭の $1$ に続く2進小数の桁が細部を決めます。
+    \item 先頭の $1$ は常に $1$ なので格納しません（暗黙）。
+  \end{itemize}
+  \begin{center}
+  \begin{tikzpicture}[x=.9mm,y=.9mm]
+    \foreach \i/\b in {0/1,1/0,2/1}{
+      \fill[courseblue!8] (11*\i,10) rectangle (11*\i+10,18);
+      \draw[courseblue!45,line width=.4pt] (11*\i,10) rectangle (11*\i+10,18);
+      \node[font=\codefont\large] at (11*\i+5,14) {\b};
+    }
+    \fill[courseblue!8] (36,10) rectangle (46,18);
+    \draw[courseblue!45,line width=.4pt] (36,10) rectangle (46,18);
+    \node[font=\codefont\large] at (41,14) {1};
+    \node[font=\codefont\large] at (34,14) {\vphantom{1}.};
+    \node[anchor=west,font=\small] at (50,14) {$(101.1)_2=(5.5)_{10}$};
+    \fill[courseblue!20] (0,0) rectangle (10,8);
+    \draw[courseblue!45,line width=.4pt] (0,0) rectangle (10,8);
+    \node[font=\codefont\large,text=black!50] at (5,4) {1};
+    \node[font=\codefont\large] at (12,4) {\vphantom{1}.};
+    \foreach \i/\b in {0/0,1/1,2/1}{
+      \fill[courseblue!8] (14+11*\i,0) rectangle (24+11*\i,8);
+      \draw[courseblue!45,line width=.4pt] (14+11*\i,0) rectangle (24+11*\i,8);
+      \node[font=\codefont\large] at (19+11*\i,4) {\b};
+    }
+    \node[anchor=west,font=\small] at (50,4) {$=(1.011)_2\times 2^{2}$};
+    \node[anchor=west,font=\scriptsize] at (50,-1) {$e=2$：指数部が決める};
+    \draw[courseblue!70,line width=.3pt] (0,-1) -- (0,-1.8) -- (10,-1.8) -- (10,-1);
+    \node[anchor=north,font=\scriptsize,text=black!55] at (5,-1.9) {格納しない};
+    \draw[courseblue!70,line width=.3pt] (14,-1) -- (14,-1.8) -- (46,-1.8) -- (46,-1);
+    \node[anchor=north,font=\scriptsize] at (30,-1.9) {仮数部（011$\cdots$）};
+  \end{tikzpicture}
+  \end{center}
+  \vspace{-2mm}
+  {\small 指数部の欄には $e$ ではなく $e+1023$ を格納します。}
+  \endgroup
 \end{frame}
 
 \begin{frame}[t,fragile]{0.1の表現を確認する}
   \setlength{\parskip}{0pt}
-  \code{float}では有限桁に丸められた値が保存されています。
+  0.1 は2進数で循環するため、有限桁に丸めて保存します。
+  \[
+    0.1=(0.0001100110011\ldots)_2
+  \]
+  \code{float}に保存されている値は、この丸めた値です。
 \begin{lstlisting}
 a = 0.1
 print(f"{a:.55f}")
@@ -180,7 +316,7 @@ for _ in range(10_000_000):
     total += 0.01
 print(total)
 \end{lstlisting}
-  \vspace{1mm}
+  {\small 出力：\code{99999.99998630969}（$100000$ との差 約$1.4\times10^{-5}$）\par}
   数値計算では、丸め誤差が反復回数とともに積み重なる場合があります。
   \begin{itemize}
     \item 精度が必要な総和には、補償和などの方法もあります。
@@ -190,28 +326,57 @@ print(total)
 
 \begin{frame}[t]{情報落ちと桁落ち}
   \begin{columns}[t,onlytextwidth]
-    \begin{column}{.48\textwidth}
+    \begin{column}{.49\textwidth}
       \textbf{情報落ち：大きさが違う数の加算}
-      \[
-        10^{16}+1
-      \]
-      小さい数の情報が丸めで失われることがあります。
+      \par\vspace{1mm}
+      \begin{tikzpicture}[x=1mm,y=1mm]
+        \foreach \i in {0,...,16}{
+          \node[font=\codefont\scriptsize] at (2.9*\i+1.45,10.5) {\ifnum\i=0 1\else 0\fi};
+          \node[font=\codefont\scriptsize] at (2.9*\i+1.45,0.5) {\ifnum\i=0 1\else 0\fi};
+        }
+        \node[font=\codefont\scriptsize,text=red!70!black] at (2.9*16+1.45,5.5) {$+1$};
+        \draw[black!45,line width=.4pt] (0,3.4) -- (49.3,3.4);
+      \end{tikzpicture}
+      \par\vspace{1mm}
+      {\small binary64 の最近接（偶数丸め）で $10^{16}+1$ は $10^{16}$ になり、$+1$ は消えます。}
     \end{column}
-    \begin{column}{.48\textwidth}
+    \begin{column}{.49\textwidth}
       \textbf{桁落ち：近い数の減算}
-      \[
-        1.0000001-1.0000000
-      \]
-      近い値の差では、相対的な誤差が大きくなりえます。
+      \par\vspace{1mm}
+      \begin{tikzpicture}[x=1mm,y=1mm]
+        \foreach \i/\d in {0/1,1/.,2/0,3/0,4/0,5/0,6/0,7/0,8/1}{
+          \node[font=\codefont\small] at (4+3.2*\i,10.5) {\d};
+        }
+        \foreach \i/\d in {0/1,1/.,2/0,3/0,4/0,5/0,6/0,7/0,8/0}{
+          \node[font=\codefont\small] at (4+3.2*\i,5.5) {\d};
+        }
+        \node[font=\codefont\small] at (1.5,5.5) {$-$};
+        \draw[black!45,line width=.4pt] (0,3.4) -- (4+3.2*8+2.6,3.4);
+        \foreach \i/\d in {0/0,1/.,2/0,3/0,4/0,5/0,6/0,7/0}{
+          \node[font=\codefont\small,text=black!35] at (4+3.2*\i,0.5) {\d};
+        }
+        \node[font=\codefont\small,text=courseblue] at (4+3.2*8,0.5) {1};
+        \foreach \y in {10.5,5.5,0.5}{
+          \node[font=\small] at (4+3.2*8+3.3,\y) {$\ldots$};
+        }
+        \draw[courseblue!70,line width=.3pt]
+          (4,-1.4) -- (4,-2) -- (4+3.2*7.6,-2) -- (4+3.2*7.6,-1.4);
+        \node[anchor=north west,font=\scriptsize] at (4,-2.3) {上位の桁が相殺};
+        \node[anchor=north west,font=\scriptsize] at (26.8,-2.3) {$\ldots$は下位桁の省略};
+        \node[anchor=north west,font=\scriptsize] at (8,-5.9) {差は一例で、省略した桁にもよる};
+      \end{tikzpicture}
+      \par\vspace{1mm}
+      {\small 差の計算自体は正確でも、残る有効桁が減り、もとの値の誤差が相対的に拡大します。}
     \end{column}
   \end{columns}
-  \vspace{3mm}
+  \vspace{2mm}
   \begin{lessonbox}
     数値微分では、分子の差が小さくなるため、桁落ちが刻み幅の選択に影響します。
   \end{lessonbox}
 \end{frame}
 
 \begin{frame}[t,fragile]{テイラー展開から差分公式へ}
+  \vspace*{\fill}
   $f$が十分滑らかなとき、
   \[
     f(x+h)=f(x)+hf'(x)+\frac{h^2}{2}f''(x)+O(h^3).
@@ -222,6 +387,7 @@ print(total)
 \end{lstlisting}
   \vspace{1mm}
   ただし、$h$を小さくしすぎると、丸め誤差が増えます。
+  \vfill
 \end{frame}
 
 \begin{frame}[t]{前進差分・後退差分・中心差分}
@@ -253,6 +419,7 @@ print(total)
 \end{frame}
 
 \begin{frame}[t]{刻み幅 $h$ と2種類の誤差}
+  \vspace*{\fill}
   \begin{columns}[t,onlytextwidth]
     \begin{column}{.48\textwidth}
       \textbf{打ち切り誤差}
@@ -273,14 +440,18 @@ print(total)
   \begin{lessonbox}
     誤差全体は$h$に対して谷を作ります。小さすぎず、大きすぎない刻み幅を探します。
   \end{lessonbox}
+  \vfill
 \end{frame}
 
 \begin{frame}[t]{$\sin x$の数値微分}
+  \vspace{-4mm}
   $x=0.3\pi$での真の微分係数は $\cos(0.3\pi)$ です。
-  \begin{center}
-    \includegraphics[width=.82\linewidth,height=41mm,keepaspectratio]{differentiation_error.pdf}
-  \end{center}
-  \small 前進差分は大きな$h$で打ち切り誤差が目立ち、小さな$h$では丸め誤差が目立ちます。
+  {\centering
+    \includegraphics[width=.9\linewidth,height=44mm,keepaspectratio]{differentiation_error.pdf}\par}
+  \small 前進差分の谷は$h\approx10^{-8}$、中心差分は$h\approx10^{-5}$付近にあります。
+
+  \small Notebookで前進差分の誤差の谷を確認し、\\
+  実習で中心差分と比べます。
 \end{frame}
 
 \begin{frame}[t]{刻み幅の目安}
@@ -297,40 +468,12 @@ print(total)
   \small これは関数や評価点に依存する目安で、普遍的な最適値ではありません。
 \end{frame}
 
-\begin{frame}[t,fragile]{刻み幅を変えて誤差を調べる}
+\begin{frame}[t,fragile]{実習タイム：多項式の微分}
   \setlength{\parskip}{0pt}
-  \small 真値を知る関数で、$h$ごとの絶対誤差を比べます。
-\begin{lstlisting}
-x = 0.3 * np.pi
-h = 10.0 ** (-np.arange(1, 17))
-exact = np.cos(x)
-forward = (np.sin(x + h) - np.sin(x)) / h
-central = (
-    np.sin(x + h) - np.sin(x - h)
-) / (2 * h)
-error_forward = np.abs(forward - exact)
-error_central = np.abs(central - exact)
-\end{lstlisting}
-  \vspace{2mm}
-  \small Notebookでは前進差分の誤差の谷を確認し、演習で中心差分と比べます。
-\end{frame}
-
-\begin{frame}[t]{関数が速く変化する場合}
-  \setlength{\parskip}{1mm}
-  $f(x)=\sin(\omega x)$では、導関数の大きさは$\omega$に比例し、高階導関数はさらに大きくなります。
-  \[
-    f'(x)=\omega\cos(\omega x),\qquad f'''(x)=-\omega^3\cos(\omega x)
-  \]
-  \begin{itemize}
-    \item 打ち切り誤差の係数が変わるため、最適な$h$も変わります。
-    \item $\omega=1$と$\omega=10^4$で、誤差を実際に比較します。
-    \item 絶対誤差だけでなく、微分係数の大きさに対する相対誤差も確認します。
-  \end{itemize}
-\end{frame}
-
-\begin{frame}[t,fragile]{実習：多項式の微分}
-  \setlength{\parskip}{0pt}
-  $f(x)=x^3-2x+1$の解析解は$f'(x)=3x^2-2$です。
+  \vspace*{\fill}
+  \begin{enumerate}
+    \item $f(x)=x^3-2x+1$の解析解は$f'(x)=3x^2-2$です。
+  \end{enumerate}
 \begin{lstlisting}
 def f(x):
     return x**3 - 2*x + 1
@@ -343,14 +486,32 @@ def df_exact(x):
     \item $x=0.7$で差分近似を計算し、解析解と比べます。
     \item $h$を変え、前進差分・中心差分の誤差を記録します。
   \end{itemize}
+  \vfill
 \end{frame}
 
-\begin{frame}[t]{実習：振動関数と差分公式}
+\begin{frame}[t]{実習の準備：関数が速く変化する場合}
+  \setlength{\parskip}{0.5mm}
+  $f(x)=\sin(\omega x)$では、導関数の大きさは$\omega$に比例し、高階導関数はさらに大きくなります。
+  \[
+    f'(x)=\omega\cos(\omega x),\qquad f'''(x)=-\omega^3\cos(\omega x)
+  \]
+  \begin{itemize}
+    \item 打ち切り誤差の係数が変わるため、最適な$h$も変わります。
+  \end{itemize}
+  \vspace{1mm}
+  \textbf{同位相で比べる}：$\sin x$は$x=0.3\pi$、$\sin(10^4x)$は$x=0.3\pi/10^4$。
+  相対誤差は$|\text{近似値}-\text{解析解}|/|\text{解析解}|$。
+  \vspace{0.5mm}
+
+  $\omega$による最適な$h$の違いは、次のページで確かめます。
+\end{frame}
+
+\begin{frame}[t]{実習タイム（続き）：振動関数と差分公式}
   \begin{enumerate}
     \setlength{\itemsep}{4mm}
-    \item $\sin(10^4x)$を数値微分し、$\sin x$の場合と$h$の最適域を比べます。
-    \item 前進差分・後退差分・中心差分を同じグラフに描きます。
-    \item $h$を極端に小さくしたときの誤差を観察します。
+    \setcounter{enumi}{1}
+    \item $\sin(10^4x)$を数値微分し、$\sin x$の場合と$h$の最適域を比べます。絶対誤差に加えて、微分係数の大きさに対する相対誤差も見ます。
+    \item 前進差分・後退差分・中心差分を同じグラフに描き、$h$を極端に小さくしたときの桁落ちも確認します。
   \end{enumerate}
   \vfill
   \begin{lessonbox}
@@ -358,16 +519,42 @@ def df_exact(x):
   \end{lessonbox}
 \end{frame}
 
-\begin{frame}[t]{まとめ}
-  \begin{itemize}
-    \setlength{\itemsep}{3mm}
-    \item 浮動小数点数は有限精度で、丸め誤差が生じます。
-    \item 近い数の減算では桁落ちが起こりやすくなります。
-    \item 中心差分は滑らかな関数に対して$O(h^2)$の打ち切り誤差を持ちます。
-    \item $h$を小さくしすぎると丸め誤差が増えるため、誤差を実際に調べます。
-  \end{itemize}
+\begin{frame}[t,fragile]{実習タイム（続き）：丸め誤差の積み重ね}
+  \setlength{\parskip}{0pt}
+  \vspace*{\fill}
+  \begin{enumerate}
+    \setcounter{enumi}{3}
+    \item 0.01の反復加算で、加算回数$n$を$10^4$、$10^5$、$10^6$と変え、$n\times0.01$との差を比べます。
+  \end{enumerate}
+\begin{lstlisting}
+n = 10**4
+total = 0.0
+for _ in range(n):
+    total += 0.01
+print(n * 0.01 - total)
+\end{lstlisting}
+  \vspace{1mm}
+  \code{n}を$10^5$、$10^6$に変えて、差の増え方を比べます。
   \vfill
-  次回：数値積分
+\end{frame}
+
+\begin{frame}[t,fragile]{実習タイム（続き）：二階微分の中心差分}
+  \setlength{\parskip}{0pt}
+  \vspace*{\fill}
+  \begin{enumerate}
+    \setcounter{enumi}{4}
+    \item $f(x)=x^4$の二階微分を中心差分で求め、$x=1$で解析解と比べます。
+  \end{enumerate}
+\begin{lstlisting}
+def f(x):
+    return x**4
+
+def ddf_exact(x):
+    return 12 * x**2
+\end{lstlisting}
+  \vspace{1mm}
+  $h=10^{-1},10^{-2},10^{-3},\ldots$と小さくし、誤差がいつ増え始めるかも記録します。
+  \vfill
 \end{frame}
 
 \end{document}
